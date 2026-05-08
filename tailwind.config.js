@@ -82,6 +82,15 @@ module.exports = {
         'xl':  '0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.03)',
       },
     },
+    animation: {
+    'pulse': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    },
+    keyframes: {
+      pulse: {
+        '0%, 100%': { opacity: '0.1' },
+        '50%':      { opacity: '0.2' },
+      },
+    }
   },
   plugins: [],
 }
