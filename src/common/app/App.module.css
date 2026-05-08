@@ -1,0 +1,43 @@
+.appRoot {
+  min-height: 100vh;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+.appLoading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fdf7ff;
+}
+
+.appLoadingDark {
+  background-color: #141218;
+}
+
+.appSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.appSpinnerDot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #e9ddff;
+  border-top-color: #4f378a;
+  animation: spin 0.8s linear infinite;
+}
+
+.appLogo {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #4f378a;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
