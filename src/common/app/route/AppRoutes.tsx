@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAppSelector } from "@cyopo/Hooks/useRedux";
 import { selectIsAuthenticated } from "@cyopo/Redux/selectors/AppCommon.selector";
 import { ROUTES } from "@cyopo/Constants/route/Route.constants";
+import AppLayout from "../layout/AppLayout";
 
 // ─── Lazy loaded pages ───────────────────────────────────────────
 const LandingPage = React.lazy(() => import("@cyopo/Pages/landing/Landing.Page"));
@@ -20,12 +21,12 @@ const PublicPortfolioPage = React.lazy(() => import("@cyopo/Pages/public/PublicP
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.LOGIN} replace />;
+  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <Navigate to={ROUTES.LOGIN} replace />;
 };
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.LOGIN} replace />;
+  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <Navigate to={ROUTES.LOGIN} replace />;
 };
 
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,16 +42,13 @@ const AppRoutes: React.FC = () => {
       fallback={
         <div className='min-h-screen flex items-center justify-center bg-background'>
           <div className='flex flex-col items-center gap-4'>
-            <div className='w-10 h-10 rounded-full border-3 border-primary-fixed border-t-primary animate-spin' />
+            <div className='w-10 h-10 rounded-full border-[3px] border-primary-fixed border-t-primary animate-spin' />
             <span className='font-headline font-bold text-primary text-lg'>cyopo</span>
           </div>
         </div>
       }>
       <Routes>
-        {/* Public routes */}
         <Route path={ROUTES.LANDING} element={<LandingPage />} />
-
-        {/* Public only — redirect to dashboard if already logged in */}
         <Route
           path={ROUTES.LOGIN}
           element={
@@ -67,8 +65,6 @@ const AppRoutes: React.FC = () => {
             </PublicOnlyRoute>
           }
         />
-
-        {/* Authenticated routes */}
         <Route
           path={ROUTES.DASHBOARD}
           element={
@@ -109,8 +105,6 @@ const AppRoutes: React.FC = () => {
             </PrivateRoute>
           }
         />
-
-        {/* Admin routes */}
         <Route
           path={ROUTES.ADMIN_TEMPLATES}
           element={
@@ -119,8 +113,6 @@ const AppRoutes: React.FC = () => {
             </AdminRoute>
           }
         />
-
-        {/* Public portfolio view — must be last */}
         <Route path={ROUTES.PUBLIC_PORTFOLIO} element={<PublicPortfolioPage />} />
       </Routes>
     </React.Suspense>

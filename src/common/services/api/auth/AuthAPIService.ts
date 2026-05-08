@@ -4,48 +4,60 @@ import { API } from "@cyopo/Constants/api/Api.constants";
 import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@cyopo/Models/auth/auth.model";
 
 class AuthAPIServiceClass {
-  async login(payload: LoginRequest): Promise<User> {
-    const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.LOGIN, payload);
-
-    if (!response.data) {
-      throw new Error(response.message ?? "Login failed");
+  private extractErrorMessage(error: any): string {
+    // API returned a structured error response
+    if (error?.response?.data?.error) {
+      return error.response.data.error;
     }
+    // API returned a message field
+    if (error?.response?.data?.message) {
+      return error.response.data.message;
+    }
+    // Fallback
+    return error?.message ?? "Something went wrong";
+  }
 
-    const { accessToken, refreshToken, user } = response.data;
-
-    // Service responsibility — token and user persistence only
-    AuthenticationService.setTokens(accessToken, refreshToken);
-    AuthenticationService.setUser(user);
-
-    // Return user — hook dispatches to Redux
-    return user;
+  async login(payload: LoginRequest): Promise<User> {
+    try {
+      const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.LOGIN, payload);
+      if (!response.data) {
+        throw new Error(response.message ?? "Login failed");
+      }
+      const { accessToken, refreshToken, user } = response.data;
+      AuthenticationService.setTokens(accessToken, refreshToken);
+      AuthenticationService.setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(this.extractErrorMessage(error));
+    }
   }
 
   async register(payload: RegisterRequest): Promise<User> {
-    const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.REGISTER, payload);
-
-    if (!response.data) {
-      throw new Error(response.message ?? "Registration failed");
+    try {
+      const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.REGISTER, payload);
+      if (!response.data) {
+        throw new Error(response.message ?? "Registration failed");
+      }
+      const { accessToken, refreshToken, user } = response.data;
+      AuthenticationService.setTokens(accessToken, refreshToken);
+      AuthenticationService.setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(this.extractErrorMessage(error));
     }
-
-    const { accessToken, refreshToken, user } = response.data;
-    AuthenticationService.setTokens(accessToken, refreshToken);
-    AuthenticationService.setUser(user);
-    return user;
   }
 
   async logout(): Promise<void> {
     try {
       await REST.post(API.AUTH.LOGOUT);
+    } catch {
+      // Ignore logout errors — always clear session
     } finally {
-      // Service clears tokens from storage
       AuthenticationService.clearSession();
-      // Hook dispatches clearUser to Redux
     }
   }
 
   getCurrentUser(): User | null {
-    // Hook uses this to hydrate Redux on app init
     return AuthenticationService.getUser();
   }
 
