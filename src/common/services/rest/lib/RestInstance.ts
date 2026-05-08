@@ -1,5 +1,5 @@
 /**
- * AxiosService
+ * RestInstance
  * Singleton Axios instance with request/response interceptors.
  * - Attaches Bearer token to every request automatically
  * - On 401 response, attempts silent token refresh
@@ -30,7 +30,7 @@ const processQueue = (error: unknown, token: string | null): void => {
   failedQueue = [];
 };
 
-const AxiosService: AxiosInstance = axios.create({
+const RestInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
@@ -40,7 +40,7 @@ const AxiosService: AxiosInstance = axios.create({
 
 // ─── Request interceptor ─────────────────────────────────────────
 // Attach access token to every outgoing request
-AxiosService.interceptors.request.use(
+RestInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = StorageService.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
     if (token && config.headers) {
@@ -53,7 +53,7 @@ AxiosService.interceptors.request.use(
 
 // ─── Response interceptor ────────────────────────────────────────
 // On 401 — silently refresh the access token and replay the request
-AxiosService.interceptors.response.use(
+RestInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -68,7 +68,7 @@ AxiosService.interceptors.response.use(
         failedQueue.push({
           resolve: (token: string) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(AxiosService(originalRequest));
+            resolve(RestInstance(originalRequest));
           },
           reject,
         });
@@ -95,12 +95,12 @@ AxiosService.interceptors.response.use(
       StorageService.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
       StorageService.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
 
-      AxiosService.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+      RestInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
       processQueue(null, accessToken);
 
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-      return AxiosService(originalRequest);
+      return RestInstance(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
 
@@ -117,4 +117,4 @@ AxiosService.interceptors.response.use(
   },
 );
 
-export default AxiosService;
+export default RestInstance;
