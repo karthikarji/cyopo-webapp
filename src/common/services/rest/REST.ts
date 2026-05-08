@@ -9,7 +9,7 @@
  *   const result = await REST.post<AuthResponse>('/api/v1/auth/login', body)
  */
 
-import AxiosService from "@cyopo/Services/rest/lib/Axios.service";
+import AxiosService from "@cyopo/Services/rest/lib/RestInstance";
 import { AxiosRequestConfig } from "axios";
 
 const REST = {
