@@ -12,13 +12,24 @@ const useDashboardStats = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Do not refetch if already loaded
       if (stats) return;
       try {
         dispatch(setDashboardLoading(true));
         const data = await DashboardAPIService.getStats();
         dispatch(setDashboardStats(data));
       } catch (err: any) {
+        // Do not crash — just set zeros and stop loading
+        dispatch(
+          setDashboardStats({
+            totalPortfolios: 0,
+            publishedCount: 0,
+            totalViews: 0,
+            viewsTrend: 0,
+            uniqueVisitors: 0,
+            visitorsTrend: 0,
+            unreadMessages: 0,
+          }),
+        );
         dispatch(setDashboardError(err?.message ?? "Failed to load stats"));
       }
     };

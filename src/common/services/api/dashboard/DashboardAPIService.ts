@@ -13,7 +13,7 @@ class DashboardAPIServiceClass {
       }
       return response.data;
     } catch (error: any) {
-      throw new Error(extractApiError(error));
+      throw new Error(extractApiError(error, "Failed to load dashboard stats"));
     }
   }
 }
