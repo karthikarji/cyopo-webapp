@@ -2,13 +2,28 @@ import REST from "@cyopo/Services/rest/REST";
 import AuthenticationService from "@cyopo/Services/auth/AuthenticationService";
 import { API } from "@cyopo/Constants/api/Api.constants";
 import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@cyopo/Models/auth/auth.model";
+import { extractApiError } from "@cyopo/Utils/rest/ApiError.utils";
 
 class AuthAPIServiceClass {
   async login(payload: LoginRequest): Promise<User> {
+<<<<<<< Updated upstream
     const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.LOGIN, payload);
 
     if (!response.data) {
       throw new Error(response.message ?? "Login failed");
+=======
+    try {
+      const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.LOGIN, payload);
+      if (!response.data) {
+        throw new Error(response.message ?? "Login failed");
+      }
+      const { accessToken, refreshToken, user } = response.data;
+      AuthenticationService.setTokens(accessToken, refreshToken);
+      AuthenticationService.setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+>>>>>>> Stashed changes
     }
 
     const { accessToken, refreshToken, user } = response.data;
@@ -22,10 +37,24 @@ class AuthAPIServiceClass {
   }
 
   async register(payload: RegisterRequest): Promise<User> {
+<<<<<<< Updated upstream
     const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.REGISTER, payload);
 
     if (!response.data) {
       throw new Error(response.message ?? "Registration failed");
+=======
+    try {
+      const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.REGISTER, payload);
+      if (!response.data) {
+        throw new Error(response.message ?? "Registration failed");
+      }
+      const { accessToken, refreshToken, user } = response.data;
+      AuthenticationService.setTokens(accessToken, refreshToken);
+      AuthenticationService.setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+>>>>>>> Stashed changes
     }
 
     const { accessToken, refreshToken, user } = response.data;
