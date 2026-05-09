@@ -1,4 +1,8 @@
-import { createReducer } from "@reduxjs/toolkit";
+import { combineReducers } from "@reduxjs/toolkit";
+import PortfolioReducer from "./Portfolio.reducer";
 
-const PortfolioReducer = createReducer({}, (_builder) => {});
-export default PortfolioReducer;
+const PortfolioRootReducer = combineReducers({
+  list: PortfolioReducer,
+});
+
+export default PortfolioRootReducer;
