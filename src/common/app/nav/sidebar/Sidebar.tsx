@@ -17,9 +17,16 @@ const Sidebar: React.FC = () => {
         "hidden md:flex",
       ].join(" ")}>
       {/* Logo */}
+      {/* Logo */}
       <div className='px-3 mb-8 flex items-center gap-3 flex-shrink-0'>
-        <div className='min-w-[32px] h-[32px] bg-primary rounded-lg flex items-center justify-center flex-shrink-0'>
-          <span className='material-symbols-outlined text-on-primary text-lg' style={{ fontVariationSettings: "'FILL' 1" }}>
+        <div
+          className={[
+            "min-w-[32px] h-[32px] rounded-lg flex items-center justify-center flex-shrink-0",
+            "bg-primary-container dark:bg-primary-fixed-dim",
+          ].join(" ")}>
+          <span
+            className='material-symbols-outlined text-on-primary-container dark:text-on-primary-fixed text-lg'
+            style={{ fontVariationSettings: "'FILL' 1" }}>
             auto_awesome
           </span>
         </div>

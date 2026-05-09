@@ -11,11 +11,13 @@ const TopBar: React.FC = () => {
   return (
     <header
       className={[
-        "fixed top-0 right-0 left-[56px] z-30 h-16",
-        "bg-surface dark:bg-surface-dim",
-        "border-b border-outline-variant/10 shadow-sm",
+        "fixed top-0 right-0 z-30 h-16",
+        "left-0 md:left-[56px]",
+        "bg-surface-container-low dark:bg-surface-container",
+        "border-b border-outline-variant/30",
+        "shadow-sm",
         "flex items-center justify-between",
-        "px-6",
+        "px-4 sm:px-6",
         "transition-all duration-300",
       ].join(" ")}>
       {/* Breadcrumb */}
@@ -34,7 +36,7 @@ const TopBar: React.FC = () => {
         </button>
 
         {/* New portfolio button */}
-        <Button variant='primary' size='sm' leftIcon={<Plus size={15} />} onClick={handlers.handleNewPortfolio}>
+        <Button variant='primary' size='sm' leftIcon={<Plus size={15} />} onClick={handlers.handleNewPortfolio} className='shadow-sm'>
           {TOPBAR_NEW_PORTFOLIO_LABEL}
         </Button>
 
