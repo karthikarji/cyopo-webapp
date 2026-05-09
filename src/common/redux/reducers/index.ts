@@ -1,11 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import AppCommonReducer from "@cyopo/Redux/reducers/AppCommon.reducer";
+import AppCommonReducer from "@cyopo/Redux/reducers/AppCommon.reducer.ts";
 import AuthReducer from "@cyopo/Pages/auth/common/redux/reducers";
 import PortfolioReducer from "@cyopo/Pages/portfolio/common/redux/reducers";
 import TemplateReducer from "@cyopo/Pages/templates/common/redux/reducers";
 import AnalyticsReducer from "@cyopo/Pages/analytics/common/redux/reducers";
 import AdminReducer from "@cyopo/Pages/admin/common/redux/reducers";
-import DashboardReducer from "@cyopo/Pages/dashboard/common/redux/reducers";
 
 const RootReducer = combineReducers({
   common: AppCommonReducer,
@@ -14,7 +13,6 @@ const RootReducer = combineReducers({
   templates: TemplateReducer,
   analytics: AnalyticsReducer,
   admin: AdminReducer,
-  dashboard: DashboardReducer,
 });
 
 export type CyopoState = ReturnType<typeof RootReducer>;

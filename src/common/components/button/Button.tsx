@@ -2,8 +2,7 @@ import React from "react";
 import type { ButtonProps } from "./Button.model.d";
 
 const variantClasses: Record<string, string> = {
-  primary:
-    "bg-primary text-on-primary hover:opacity-90 shadow-sm hover:shadow-md active:scale-[0.98] dark:bg-primary-fixed-dim dark:text-on-primary-fixed",
+  primary: "bg-primary text-on-primary hover:opacity-90 shadow-sm hover:shadow-md active:scale-[0.98]",
   secondary: "bg-surface text-on-surface border border-outline-variant hover:bg-surface-container-low active:scale-[0.98]",
   ghost: "bg-transparent text-on-surface-variant hover:bg-surface-container hover:text-on-surface active:scale-[0.98]",
   danger: "bg-error text-on-error hover:opacity-90 shadow-sm active:scale-[0.98]",
@@ -36,7 +35,7 @@ const Button: React.FC<ButtonProps> = ({
       className={[
         "inline-flex items-center justify-center",
         "font-label font-medium",
-        "rounded-xl",
+        "rounded-lg",
         "transition-all duration-200",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
