@@ -2,21 +2,9 @@ import REST from "@cyopo/Services/rest/REST";
 import AuthenticationService from "@cyopo/Services/auth/AuthenticationService";
 import { API } from "@cyopo/Constants/api/Api.constants";
 import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@cyopo/Models/auth/auth.model";
+import { extractApiError } from "@cyopo/Utils/rest/ApiError.utils";
 
 class AuthAPIServiceClass {
-  private extractErrorMessage(error: any): string {
-    // API returned a structured error response
-    if (error?.response?.data?.error) {
-      return error.response.data.error;
-    }
-    // API returned a message field
-    if (error?.response?.data?.message) {
-      return error.response.data.message;
-    }
-    // Fallback
-    return error?.message ?? "Something went wrong";
-  }
-
   async login(payload: LoginRequest): Promise<User> {
     try {
       const response = await REST.post<ApiResponse<AuthResponse>>(API.AUTH.LOGIN, payload);
@@ -28,7 +16,7 @@ class AuthAPIServiceClass {
       AuthenticationService.setUser(user);
       return user;
     } catch (error: any) {
-      throw new Error(this.extractErrorMessage(error));
+      throw new Error(extractApiError(error));
     }
   }
 
@@ -43,7 +31,7 @@ class AuthAPIServiceClass {
       AuthenticationService.setUser(user);
       return user;
     } catch (error: any) {
-      throw new Error(this.extractErrorMessage(error));
+      throw new Error(extractApiError(error));
     }
   }
 
