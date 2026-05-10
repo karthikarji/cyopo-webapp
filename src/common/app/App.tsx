@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@cyopo/Hooks/useRedux";
-import { setUser, setAppReady, setTheme } from "@cyopo/Redux/actions/AppCommon.actions";
+import { setUser, setAppReady, setTheme, clearUser, setAuthenticated } from "@cyopo/Redux/actions/AppCommon.actions";
 import { selectIsAppReady, selectTheme } from "@cyopo/Redux/selectors/AppCommon.selector";
 import AuthenticationService from "@cyopo/Services/auth/AuthenticationService";
 import StorageService from "@cyopo/Services/storage/StorageService";
@@ -22,16 +22,15 @@ const AppInner: React.FC = () => {
   const isAppReady = useAppSelector(selectIsAppReady);
   const theme = useAppSelector(selectTheme);
 
+  // 1. App init — hydrate theme and user session
   useEffect(() => {
     const initApp = async () => {
       try {
-        // 1. Load persisted theme
         const savedTheme = StorageService.get<"light" | "dark">(STORAGE_KEYS.THEME);
         const activeTheme = savedTheme ?? "light";
         dispatch(setTheme(activeTheme));
         document.documentElement.classList.toggle("dark", activeTheme === "dark");
 
-        // 2. Hydrate user session from storage
         const user = AuthenticationService.getUser();
         if (user && AuthenticationService.isAuthenticated()) {
           dispatch(setUser(user));
@@ -39,7 +38,6 @@ const AppInner: React.FC = () => {
       } catch (error) {
         console.error("App init failed:", error);
       } finally {
-        // 3. Always mark app as ready so routes render
         dispatch(setAppReady(true));
       }
     };
@@ -47,11 +45,23 @@ const AppInner: React.FC = () => {
     initApp();
   }, [dispatch]);
 
-  // Apply theme class on theme change
+  // 2. Apply theme class whenever theme changes
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     StorageService.set(STORAGE_KEYS.THEME, theme);
   }, [theme]);
+
+  // 3. Listen for auth:logout event dispatched by RestInstance interceptor
+  //    when token refresh fails — clears Redux and PrivateRoute redirects to /login
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      dispatch(clearUser());
+      dispatch(setAuthenticated(false));
+    };
+
+    window.addEventListener("auth:logout", handleAuthLogout);
+    return () => window.removeEventListener("auth:logout", handleAuthLogout);
+  }, [dispatch]);
 
   if (!isAppReady) {
     return (

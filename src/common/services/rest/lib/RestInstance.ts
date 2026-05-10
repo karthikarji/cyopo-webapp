@@ -1,30 +1,18 @@
-/**
- * RestInstance
- * Singleton Axios instance with request/response interceptors.
- * - Attaches Bearer token to every request automatically
- * - On 401 response, attempts silent token refresh
- * - On refresh failure, clears session and redirects to login
- * - All API services go through this — nothing imports axios directly
- */
-
-import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosInstance } from "axios";
 import StorageService from "@cyopo/Services/storage/StorageService";
 import { STORAGE_KEYS } from "@cyopo/Constants/app/App.constants";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-}> = [];
+let failedQueue: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
 
-const processQueue = (error: unknown, token: string | null): void => {
-  failedQueue.forEach((item) => {
+const processQueue = (error: any, token: string | null) => {
+  failedQueue.forEach((p) => {
     if (error) {
-      item.reject(error);
+      p.reject(error);
     } else {
-      item.resolve(token as string);
+      p.resolve(token!);
     }
   });
   failedQueue = [];
@@ -38,12 +26,12 @@ const RestInstance: AxiosInstance = axios.create({
   },
 });
 
-// ─── Request interceptor ─────────────────────────────────────────
+// ─── Request Interceptor ──────────────────────────────────────────────────
 // Attach access token to every outgoing request
 RestInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config) => {
     const token = StorageService.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
-    if (token && config.headers) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -51,18 +39,32 @@ RestInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// ─── Response interceptor ────────────────────────────────────────
-// On 401 — silently refresh the access token and replay the request
+// ─── Response Interceptor ─────────────────────────────────────────────────
+// Handle 401 — attempt token refresh, then retry original request
 RestInstance.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    // Only handle 401 — any other error passes through
+    if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
-    // If already refreshing, queue this request until refresh is done
+    // Skip refresh for auth endpoints — login/register failures
+    // should pass through directly to the hook error handler
+    const isAuthEndpoint = originalRequest.url?.includes("/api/v1/auth/");
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    // Prevent infinite loop — if refresh itself gets 401, stop
+    if (originalRequest._retry) {
+      handleLogout();
+      return Promise.reject(error);
+    }
+
+    // If already refreshing — queue this request until refresh completes
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -85,36 +87,48 @@ RestInstance.interceptors.response.use(
         throw new Error("No refresh token available");
       }
 
-      // Call refresh endpoint directly with base axios to avoid loops
-      const response = await axios.post(`${BASE_URL}/api/v1/auth/refresh`, {
-        refreshToken,
-      });
+      // Use plain axios — not RestInstance — to avoid interceptor loop
+      const refreshResponse = await axios.post(
+        `${BASE_URL}/api/v1/auth/refresh`,
+        { refreshToken },
+        { headers: { "Content-Type": "application/json" } },
+      );
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+      const responseData = refreshResponse.data?.data ?? refreshResponse.data;
+      const newAccessToken = responseData?.accessToken;
+      const newRefreshToken = responseData?.refreshToken;
 
-      StorageService.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-      StorageService.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+      if (!newAccessToken) {
+        throw new Error("No access token in refresh response");
+      }
 
-      RestInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+      StorageService.set(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+      if (newRefreshToken) {
+        StorageService.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+      }
 
-      processQueue(null, accessToken);
+      RestInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
 
-      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      processQueue(null, newAccessToken);
+
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return RestInstance(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
-
-      // Refresh failed — clear session and go to login
-      StorageService.remove(STORAGE_KEYS.ACCESS_TOKEN);
-      StorageService.remove(STORAGE_KEYS.REFRESH_TOKEN);
-      StorageService.remove(STORAGE_KEYS.USER);
-
-      window.location.href = "/login";
+      handleLogout();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
   },
 );
+
+// ─── Logout Helper ────────────────────────────────────────────────────────
+const handleLogout = () => {
+  StorageService.remove(STORAGE_KEYS.ACCESS_TOKEN);
+  StorageService.remove(STORAGE_KEYS.REFRESH_TOKEN);
+  StorageService.remove(STORAGE_KEYS.USER);
+  window.dispatchEvent(new CustomEvent("auth:logout"));
+};
 
 export default RestInstance;
