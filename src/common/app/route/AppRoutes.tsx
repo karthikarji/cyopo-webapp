@@ -11,6 +11,7 @@ const LoginPage = React.lazy(() => import("@cyopo/Pages/auth/Login.Page"));
 const RegisterPage = React.lazy(() => import("@cyopo/Pages/auth/Register.Page"));
 const DashboardPage = React.lazy(() => import("@cyopo/Pages/dashboard/Dashboard.Page"));
 const PortfolioPage = React.lazy(() => import("@cyopo/Pages/portfolio/Portfolio.Page"));
+const WizardPage = React.lazy(() => import("@cyopo/Pages/portfolio/wizard/Wizard.Page"));
 const TemplatesPage = React.lazy(() => import("@cyopo/Pages/templates/TemplateGallery.Page"));
 const AnalyticsPage = React.lazy(() => import("@cyopo/Pages/analytics/Analytics.Page"));
 const SettingsPage = React.lazy(() => import("@cyopo/Pages/settings/Settings.Page"));
@@ -19,9 +20,10 @@ const PublicPortfolioPage = React.lazy(() => import("@cyopo/Pages/public/PublicP
 
 // ─── Route guards ────────────────────────────────────────────────
 
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PrivateRoute: React.FC<{ children: React.ReactNode; noLayout?: boolean }> = ({ children, noLayout }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <Navigate to={ROUTES.LOGIN} replace />;
+  if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} replace />;
+  return noLayout ? <>{children}</> : <AppLayout>{children}</AppLayout>;
 };
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -78,6 +80,14 @@ const AppRoutes: React.FC = () => {
           element={
             <PrivateRoute>
               <PortfolioPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.PORTFOLIO_NEW}
+          element={
+            <PrivateRoute noLayout>
+              <WizardPage />
             </PrivateRoute>
           }
         />

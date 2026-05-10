@@ -1,6 +1,40 @@
 export type PortfolioStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
-export type SkillCategory = "frontend" | "backend" | "devops" | "database" | "tools" | "other";
+export type SkillCategory =
+  | "FRONTEND"
+  | "BACKEND"
+  | "DEVOPS"
+  | "DATABASE"
+  | "MOBILE"
+  | "AI_ML"
+  | "CLOUD"
+  | "PROJECT_MANAGEMENT"
+  | "PRODUCT_MANAGEMENT"
+  | "BUSINESS_ANALYSIS"
+  | "STRATEGY"
+  | "LEADERSHIP"
+  | "COMMUNICATION"
+  | "SALES"
+  | "MARKETING"
+  | "CUSTOMER_SUCCESS"
+  | "HR"
+  | "RECRUITING"
+  | "UI_UX_DESIGN"
+  | "GRAPHIC_DESIGN"
+  | "CONTENT_CREATION"
+  | "COPYWRITING"
+  | "VIDEO_EDITING"
+  | "PHOTOGRAPHY"
+  | "FINANCE"
+  | "ACCOUNTING"
+  | "LEGAL"
+  | "DATA_ANALYSIS"
+  | "RESEARCH"
+  | "MARKET_RESEARCH"
+  | "OPERATIONS"
+  | "SUPPLY_CHAIN"
+  | "LOGISTICS"
+  | "OTHER";
 
 export type SkillProficiency = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -63,6 +97,7 @@ export interface PortfolioSettings {
   isPublic: boolean;
   allowComments: boolean;
   showContactInfo: boolean;
+  showSkillLevels: boolean;
   customDomain?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -104,7 +139,13 @@ export interface PortfolioPageResponse {
 export interface CreatePortfolioRequest {
   name: string;
   templateId: string;
-  slug: string;
+  slug?: string;
+  profile?: Partial<PortfolioProfile>;
+  skills?: Skill[];
+  certifications?: Certification[];
+  experiences?: Experience[];
+  projects?: Project[];
+  settings?: Partial<PortfolioSettings>;
 }
 
 export interface UpdatePortfolioRequest {

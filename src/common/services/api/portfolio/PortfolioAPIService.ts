@@ -102,7 +102,7 @@ class PortfolioAPIServiceClass {
 
   async duplicatePortfolio(id: string): Promise<Portfolio> {
     try {
-      const response = await REST.post<ApiResponse<Portfolio>>(API.PORTFOLIO.DUPLICATE(id));
+      const response = await REST.patch<ApiResponse<Portfolio>>(API.PORTFOLIO.DUPLICATE(id));
       if (!response.data) {
         throw new Error(response.message ?? "Failed to duplicate portfolio");
       }
