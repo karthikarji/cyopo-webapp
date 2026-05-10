@@ -1,4 +1,4 @@
-export type PortfolioStatus = "draft" | "published" | "archived";
+export type PortfolioStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 export type SkillCategory = "frontend" | "backend" | "devops" | "database" | "tools" | "other";
 
@@ -36,14 +36,16 @@ export interface Certification {
 }
 
 export interface Experience {
-  jobTitle: string;
+  id?: string;
+  title: string;
   company: string;
   location?: string;
   startDate: string;
   endDate?: string;
-  current: boolean;
+  isCurrent: boolean;
   description?: string;
   achievements: string[];
+  technologies: string[];
 }
 
 export interface Project {

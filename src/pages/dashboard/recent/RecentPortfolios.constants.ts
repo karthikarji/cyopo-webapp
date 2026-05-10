@@ -3,19 +3,19 @@ import type { StatusConfigMap } from "./RecentPortfolios.model.d";
 export const RECENT_LIMIT = 5;
 
 export const STATUS_CONFIG: StatusConfigMap = {
-  published: {
+  PUBLISHED: {
     label: "Published",
     bg: "bg-success-container",
     text: "text-success",
     dot: "bg-success",
   },
-  draft: {
+  DRAFT: {
     label: "Draft",
     bg: "bg-surface-container-high",
     text: "text-on-surface-variant",
     dot: "bg-on-surface-variant",
   },
-  archived: {
+  ARCHIVED: {
     label: "Archived",
     bg: "bg-warning-container",
     text: "text-warning",
