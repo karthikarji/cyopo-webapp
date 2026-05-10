@@ -17,18 +17,28 @@ class PortfolioAPIServiceClass {
       if (filters.status && filters.status !== "all") {
         params.append("status", filters.status);
       }
-      if (filters.search) params.append("search", filters.search);
+      if (filters.search && filters.search.trim()) {
+        params.append("search", filters.search.trim());
+      }
       if (filters.page) params.append("page", String(filters.page));
       if (filters.limit) params.append("limit", String(filters.limit));
 
       const query = params.toString();
       const url = query ? `${API.PORTFOLIO.BASE}?${query}` : API.PORTFOLIO.BASE;
 
-      const response = await REST.get<ApiResponse<PortfolioPageResponse>>(url);
+      const response = await REST.get<ApiResponse<any>>(url);
       if (!response.data) {
         throw new Error(response.message ?? "Failed to fetch portfolios");
       }
-      return response.data;
+
+      // API returns data.data as the array
+      return {
+        portfolios: response.data.data ?? [],
+        total: response.data.total ?? 0,
+        page: response.data.page ?? 1,
+        limit: response.data.limit ?? 12,
+        totalPages: response.data.totalPages ?? 1,
+      };
     } catch (error: any) {
       throw new Error(extractApiError(error));
     }
