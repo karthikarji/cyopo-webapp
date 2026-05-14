@@ -116,8 +116,27 @@ class PortfolioAPIServiceClass {
     try {
       const params = new URLSearchParams({ slug });
       if (excludeId) params.append("excludeId", excludeId);
-      const response = await REST.get<ApiResponse<{ isAvailable: boolean }>>(`${API.PUBLIC.VALIDATE_SLUG}?${params.toString()}`);
-      return response.data?.isAvailable ?? false;
+      const response = await REST.get<ApiResponse<{ available: boolean; message: string }>>(`${API.PUBLIC.VALIDATE_SLUG}?${params.toString()}`);
+      // Backend returns { available: boolean } not { isAvailable: boolean }
+      return response.data?.available ?? false;
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
+
+  async uploadResume(portfolioId: string, file: File): Promise<void> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      await REST.post<ApiResponse<void>>(API.PORTFOLIO.RESUME(portfolioId), formData, { headers: { "Content-Type": "multipart/form-data" } });
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
+
+  async deleteResume(portfolioId: string): Promise<void> {
+    try {
+      await REST.delete<ApiResponse<void>>(API.PORTFOLIO.RESUME(portfolioId));
     } catch (error: any) {
       throw new Error(extractApiError(error));
     }

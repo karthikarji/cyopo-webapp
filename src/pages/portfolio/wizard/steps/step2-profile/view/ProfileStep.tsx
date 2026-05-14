@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, X } from "lucide-react";
+import { Upload, X, FileText, Plus } from "lucide-react";
 import Button from "@cyopo/Components/button/Button";
 import useProfileStep from "../controller/useProfileStep";
 import { PROFILE_STEP_TITLE, PROFILE_STEP_SUBTITLE, PROFILE_AI_HINT, PROFILE_AI_BTN, SOCIAL_PLATFORMS } from "../ProfileStep.constants";
@@ -43,17 +43,72 @@ const ProfileStep: React.FC = () => {
           Profile photo
         </h3>
         <div className='flex items-center gap-4'>
-          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 text-primary font-bold text-lg'>
-            {profile.name ? profile.name[0]?.toUpperCase() : "?"}
+          {/* Avatar preview */}
+          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 text-primary font-bold text-lg overflow-hidden flex-shrink-0'>
+            {profile.profilePhoto ? (
+              <img src={profile.profilePhoto} alt='Profile' className='w-full h-full object-cover' />
+            ) : profile.name ? (
+              profile.name[0]?.toUpperCase()
+            ) : (
+              "?"
+            )}
           </div>
+
+          {/* Upload label */}
           <div>
-            <button className='text-sm border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2'>
+            <label className='text-sm border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer'>
               <span className='material-symbols-outlined text-[16px]'>upload</span>
               Upload photo
-            </button>
+              <input type='file' accept='image/jpeg,image/png,image/gif,image/webp' className='hidden' onChange={handlers.handlePhotoChange} />
+            </label>
             <p className='text-xs text-on-surface-variant mt-1'>JPG, PNG or GIF · Max 2MB</p>
           </div>
         </div>
+      </div>
+
+      {/* Resume / CV upload */}
+      <div className='bg-surface border border-outline-variant/20 rounded-2xl p-5 mb-4'>
+        <h3 className='font-medium text-on-surface text-sm mb-1 flex items-center gap-2'>
+          <span className='material-symbols-outlined text-primary text-[18px]'>description</span>
+          Resume / CV
+          <span className='text-xs text-on-surface-variant font-normal ml-1'>Optional</span>
+        </h3>
+        <p className='text-xs text-on-surface-variant mb-4'>
+          Upload your resume so visitors can download it from your portfolio. PDF or Word · Max 5MB
+        </p>
+
+        {state.showResume ? (
+          <div className='flex items-center gap-3 px-4 py-3 bg-surface-container rounded-xl border border-outline-variant/20'>
+            <div className='w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0'>
+              <FileText size={18} className='text-primary' />
+            </div>
+            <div className='flex-1 min-w-0'>
+              <p className='text-sm font-medium text-on-surface truncate'>{state.resumeFileName}</p>
+              <p className='text-xs text-on-surface-variant'>{state.resumeIsDirty ? "Ready to upload" : "Uploaded"}</p>
+            </div>
+            <button
+              onClick={handlers.handleResumeRemove}
+              className='w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container transition-colors flex-shrink-0'>
+              <X size={15} />
+            </button>
+          </div>
+        ) : (
+          <label className='flex flex-col items-center justify-center gap-2 px-4 py-6 bg-surface-container-low border-2 border-dashed border-outline-variant/40 rounded-xl cursor-pointer hover:border-primary/40 hover:bg-surface-container transition-all duration-200'>
+            <div className='w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center'>
+              <Upload size={18} className='text-on-surface-variant' />
+            </div>
+            <div className='text-center'>
+              <p className='text-sm font-medium text-on-surface'>Click to upload resume</p>
+              <p className='text-xs text-on-surface-variant mt-0.5'>PDF or Word document · Max 5MB</p>
+            </div>
+            <input
+              type='file'
+              accept='.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+              className='hidden'
+              onChange={handlers.handleResumeChange}
+            />
+          </label>
+        )}
       </div>
 
       {/* Basic info */}

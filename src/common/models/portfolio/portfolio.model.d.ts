@@ -119,6 +119,9 @@ export interface Portfolio {
   viewCount: number;
   createdAt: string;
   updatedAt: string;
+  resumeFileName?: string;
+  resumeFileSize?: number;
+  hasResume?: boolean;
 }
 
 export interface PortfolioFilters {
@@ -150,6 +153,7 @@ export interface CreatePortfolioRequest {
 
 export interface UpdatePortfolioRequest {
   name?: string;
+  slug?: string;
   profile?: Partial<PortfolioProfile>;
   skills?: Skill[];
   certifications?: Certification[];

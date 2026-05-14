@@ -14,6 +14,7 @@ export const API = {
     STATUS: (id: string) => `/api/v1/user/portfolios/${id}/status`,
     DUPLICATE: (id: string) => `/api/v1/user/portfolios/${id}/duplicate`,
     PREVIEW: (slug: string) => `/api/v1/user/portfolios/preview/${slug}`,
+    RESUME: (id: string) => `/api/v1/user/portfolios/${id}/resume`,
   },
   PUBLIC: {
     PORTFOLIOS: "/api/v1/public/portfolios",

@@ -7,7 +7,7 @@ const emptyExperience = (): Experience => ({
   company: "",
   location: "",
   startDate: "",
-  endDate: "",
+  endDate: undefined,
   isCurrent: false,
   description: "",
   achievements: [],

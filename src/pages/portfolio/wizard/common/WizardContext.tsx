@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback } from "react";
+import React, { createContext, useContext, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@cyopo/Hooks/useRedux";
 import {
@@ -45,13 +45,17 @@ const slugify = (str: string): string =>
     .replace(/[^a-z0-9-]/g, "")
     .replace(/-+/g, "-");
 
-const WizardContext = createContext<WizardContextValue | null>(null);
+// const WizardContext = createContext<WizardContextValue | null>(null);
 
-export const useWizardContext = (): WizardContextValue => {
-  const ctx = useContext(WizardContext);
-  if (!ctx) throw new Error("useWizardContext must be used inside WizardProvider");
-  return ctx;
-};
+// export const useWizardContext = (): WizardContextValue => {
+//   const ctx = useContext(WizardContext);
+//   if (!ctx) throw new Error("useWizardContext must be used inside WizardProvider");
+//   return ctx;
+// };
+
+import { PortfolioFormContext, usePortfolioFormContext } from "@cyopo/Pages/portfolio/common/context/PortfolioFormContext";
+
+export { usePortfolioFormContext as useWizardContext };
 
 interface Props {
   children: React.ReactNode;
@@ -60,6 +64,11 @@ interface Props {
 export const WizardProvider: React.FC<Props> = ({ children }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const [resumeIsDirty, setResumeIsDirty] = useState(false);
+  const [resumeRemoved, setResumeRemoved] = useState(false);
 
   // All state from Redux
   const currentStep = useAppSelector(selectWizardStep);
@@ -136,12 +145,28 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         dispatch(wizardSetDraftId(portfolio.id));
       }
 
+      // Resume handling — sequential after portfolio save
+      const pid = draftPortfolioId ?? portfolio.id;
+
+      if (resumeRemoved) {
+        await PortfolioAPIService.deleteResume(pid);
+        setResumeFileName(null);
+        setResumeRemoved(false);
+      }
+
+      if (resumeIsDirty && resumeFile) {
+        await PortfolioAPIService.uploadResume(pid, resumeFile);
+        setResumeFileName(resumeFile.name);
+        setResumeIsDirty(false);
+        setResumeFile(null);
+      }
+
       dispatch(wizardSetLastSaved(new Date().toISOString()));
       Notify.success("Draft saved — you can continue filling in details");
     } catch (err: any) {
       Notify.error(err?.message ?? "Failed to save draft");
     }
-  }, [formData, draftPortfolioId, dispatch]);
+  }, [formData, draftPortfolioId, resumeFile, resumeIsDirty, resumeRemoved, dispatch]);
 
   const handlePublish = useCallback(async () => {
     if (!formData.template.templateId) {
@@ -172,8 +197,18 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
       },
       skills: formData.skills.skills,
       certifications: formData.skills.certifications,
-      experiences: formData.experience.experiences,
-      projects: formData.projects.projects,
+      experiences: formData.experience.experiences.map((exp) => ({
+        ...exp,
+        startDate: exp.startDate || undefined,
+        endDate: exp.endDate || undefined,
+        location: exp.location || undefined,
+      })),
+      projects: formData.projects.projects.map((proj) => ({
+        ...proj,
+        completedDate: proj.completedDate || undefined,
+        demoUrl: proj.demoUrl || undefined,
+        githubUrl: proj.githubUrl || undefined,
+      })),
       settings: {
         isPublic: formData.review.isPublic,
         showContactInfo: formData.review.showContact,
@@ -196,6 +231,22 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         dispatch(addPortfolio(portfolio));
       }
 
+      // Resume handling — sequential after portfolio save
+      const pid = draftPortfolioId ?? portfolio.id;
+
+      if (resumeRemoved) {
+        await PortfolioAPIService.deleteResume(pid);
+        setResumeFileName(null);
+        setResumeRemoved(false);
+      }
+
+      if (resumeIsDirty && resumeFile) {
+        await PortfolioAPIService.uploadResume(pid, resumeFile);
+        setResumeFileName(resumeFile.name);
+        setResumeIsDirty(false);
+        setResumeFile(null);
+      }
+
       // Publish if isPublic
       if (formData.review.isPublic) {
         await PortfolioAPIService.updateStatus(portfolio.id, "PUBLISHED");
@@ -208,16 +259,25 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
     } catch (err: any) {
       Notify.error(err?.message ?? "Failed to create portfolio");
     }
-  }, [formData, draftPortfolioId, dispatch, navigate, goToStep]);
+  }, [formData, draftPortfolioId, resumeFile, resumeIsDirty, resumeRemoved, dispatch, navigate, goToStep]);
 
   return (
-    <WizardContext.Provider
+    <PortfolioFormContext.Provider
       value={{
         currentStep,
         formData,
         isLoading: false,
         isDirty,
         lastSaved,
+        portfolioId: draftPortfolioId,
+        resumeFile,
+        resumeFileName,
+        resumeIsDirty,
+        resumeRemoved,
+        setResumeFile,
+        setResumeFileName,
+        setResumeIsDirty,
+        setResumeRemoved,
         updateTemplate,
         updateProfile,
         updateSkills,
@@ -232,6 +292,6 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         handlePublish,
       }}>
       {children}
-    </WizardContext.Provider>
+    </PortfolioFormContext.Provider>
   );
 };

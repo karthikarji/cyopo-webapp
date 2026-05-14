@@ -12,6 +12,7 @@ const RegisterPage = React.lazy(() => import("@cyopo/Pages/auth/Register.Page"))
 const DashboardPage = React.lazy(() => import("@cyopo/Pages/dashboard/Dashboard.Page"));
 const PortfolioPage = React.lazy(() => import("@cyopo/Pages/portfolio/Portfolio.Page"));
 const WizardPage = React.lazy(() => import("@cyopo/Pages/portfolio/wizard/Wizard.Page"));
+const EditorPage = React.lazy(() => import("@cyopo/Pages/portfolio/editor/Editor.Page"));
 const TemplatesPage = React.lazy(() => import("@cyopo/Pages/templates/TemplateGallery.Page"));
 const AnalyticsPage = React.lazy(() => import("@cyopo/Pages/analytics/Analytics.Page"));
 const SettingsPage = React.lazy(() => import("@cyopo/Pages/settings/Settings.Page"));
@@ -88,6 +89,14 @@ const AppRoutes: React.FC = () => {
           element={
             <PrivateRoute noLayout>
               <WizardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.PORTFOLIO_EDIT}
+          element={
+            <PrivateRoute>
+              <EditorPage />
             </PrivateRoute>
           }
         />

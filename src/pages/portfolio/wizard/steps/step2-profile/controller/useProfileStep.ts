@@ -8,11 +8,22 @@ import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
 
 const useProfileStep = () => {
-  const { formData, updateProfile } = useWizardContext();
+  const {
+    formData,
+    updateProfile,
+    resumeFileName,
+    resumeIsDirty,
+    resumeRemoved,
+    setResumeFile,
+    setResumeFileName,
+    setResumeIsDirty,
+    setResumeRemoved,
+  } = useWizardContext();
   const user = useAppSelector(selectUser);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const profile = formData.profile;
+  const showResume = !!(resumeFileName && !resumeRemoved);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     updateProfile({ [field]: e.target.value });
@@ -24,6 +35,20 @@ const useProfileStep = () => {
     updateProfile({ socialMedia: updated });
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      Notify.error("File size exceeds 2MB limit");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateProfile({ profilePhoto: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddSocial = () => {
     updateProfile({
       socialMedia: [...profile.socialMedia, { platform: "LinkedIn", url: "" }],
@@ -33,6 +58,27 @@ const useProfileStep = () => {
   const handleRemoveSocial = (index: number) => {
     const updated = profile.socialMedia.filter((_, i) => i !== index);
     updateProfile({ socialMedia: updated });
+  };
+
+  // Resume handlers
+  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      Notify.error("File size exceeds 5MB limit");
+      return;
+    }
+    setResumeFile(file);
+    setResumeFileName(file.name);
+    setResumeIsDirty(true);
+    setResumeRemoved(false);
+  };
+
+  const handleResumeRemove = () => {
+    setResumeFile(null);
+    setResumeFileName(null);
+    setResumeIsDirty(false);
+    setResumeRemoved(true);
   };
 
   const handleAiFill = async () => {
@@ -67,12 +113,18 @@ const useProfileStep = () => {
       profile,
       isAiLoading,
       bioLength,
+      showResume,
+      resumeFileName,
+      resumeIsDirty,
     },
     handlers: {
       handleChange,
       handleSocialChange,
       handleAddSocial,
       handleRemoveSocial,
+      handleResumeChange,
+      handleResumeRemove,
+      handlePhotoChange,
       handleAiFill,
     },
   };

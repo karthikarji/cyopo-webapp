@@ -45,7 +45,7 @@ const TemplateStep: React.FC = () => {
             className={[
               "px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
               state.activeFilter === f.value
-                ? "bg-primary text-on-primary"
+                ? "bg-primary text-on-primary dark:bg-primary-fixed-dim dark:text-on-primary-fixed"
                 : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high",
             ].join(" ")}>
             {f.label}
@@ -89,8 +89,8 @@ const TemplateStep: React.FC = () => {
 
                 {/* Selected checkmark */}
                 {isSelected && (
-                  <div className='absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center'>
-                    <Check size={13} className='text-on-primary' />
+                  <div className='absolute top-2 right-2 w-6 h-6 rounded-full bg-primary dark:bg-primary-fixed-dim flex items-center justify-center'>
+                    <Check size={13} className='text-on-primary dark:text-on-primary-fixed' />
                   </div>
                 )}
 

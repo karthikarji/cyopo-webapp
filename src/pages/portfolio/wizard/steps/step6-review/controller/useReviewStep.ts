@@ -11,7 +11,7 @@ const slugify = (str: string): string =>
     .replace(/-+/g, "-");
 
 const useReviewStep = () => {
-  const { formData, updateReview } = useWizardContext();
+  const { formData, updateReview, portfolioId } = useWizardContext();
   const review = formData.review;
   const profile = formData.profile;
 
@@ -33,7 +33,12 @@ const useReviewStep = () => {
     const timeout = setTimeout(async () => {
       try {
         setIsCheckingSlug(true);
-        const available = await PortfolioAPIService.validateSlug(review.slug);
+        // Pass portfolioId as excludeId — backend excludes this portfolio
+        // from the uniqueness check so its own slug shows as available
+        const available = await PortfolioAPIService.validateSlug(
+          review.slug,
+          portfolioId ?? undefined, // ← pass the ID
+        );
         setSlugAvailable(available);
       } catch {
         setSlugAvailable(null);
@@ -42,7 +47,7 @@ const useReviewStep = () => {
       }
     }, 500);
     return () => clearTimeout(timeout);
-  }, [review.slug]);
+  }, [review.slug, portfolioId]);
 
   const handleChange = (field: string, value: any) => {
     updateReview({ [field]: value });
