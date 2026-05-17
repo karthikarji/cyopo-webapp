@@ -8,6 +8,7 @@ import type {
   WizardExperienceData,
   WizardProjectsData,
   WizardReviewData,
+  WizardEducationData,
 } from "../../wizard.model.d";
 import {
   wizardGoNext,
@@ -22,6 +23,7 @@ import {
   wizardUpdateProjects,
   wizardUpdateReview,
   wizardSetDraftId,
+  wizardUpdateEducation,
 } from "../actions/Wizard.actions";
 
 const WizardReducer = createReducer(WizardInitialState, (builder) => {
@@ -54,6 +56,13 @@ const WizardReducer = createReducer(WizardInitialState, (builder) => {
     })
     .addCase(wizardUpdateExperience, (state, action: PayloadAction<Partial<WizardExperienceData>>) => {
       state.formData.experience = { ...state.formData.experience, ...action.payload };
+      state.isDirty = true;
+    })
+    .addCase(wizardUpdateEducation, (state, action: PayloadAction<Partial<WizardEducationData>>) => {
+      state.formData.education = {
+        ...state.formData.education,
+        ...action.payload,
+      };
       state.isDirty = true;
     })
     .addCase(wizardUpdateProjects, (state, action: PayloadAction<Partial<WizardProjectsData>>) => {

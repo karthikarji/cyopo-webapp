@@ -6,6 +6,7 @@ import type {
   WizardExperienceData,
   WizardProjectsData,
   WizardReviewData,
+  WizardEducationData,
 } from "../../wizard.model.d";
 
 export const wizardGoNext = createAction("wizard/GO_NEXT");
@@ -21,3 +22,4 @@ export const wizardUpdateExperience = createAction<Partial<WizardExperienceData>
 export const wizardUpdateProjects = createAction<Partial<WizardProjectsData>>("wizard/UPDATE_PROJECTS");
 export const wizardUpdateReview = createAction<Partial<WizardReviewData>>("wizard/UPDATE_REVIEW");
 export const wizardSetDraftId = createAction<string | null>("wizard/SET_DRAFT_ID");
+export const wizardUpdateEducation = createAction<Partial<WizardEducationData>>("wizard/UPDATE_EDUCATION");

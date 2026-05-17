@@ -8,6 +8,7 @@ import MLTExperience from "./components/MLTExperience";
 import MLTProjects from "./components/MLTProjects";
 import MLTContact from "./components/MLTContact";
 import MLTFooter from "./components/MLTFooter";
+import MLTEducation from "./components/MLTEducation";
 
 interface Props {
   portfolio: Portfolio;
@@ -23,13 +24,10 @@ const MLT: React.FC<Props> = ({ portfolio }) => {
 
       <main>
         {profile?.bio && <MLTAbout bio={profile.bio} />}
-
         {portfolio.skills?.length > 0 && <MLTSkills skills={portfolio.skills} showLevels={settings?.showSkillLevels ?? true} />}
-
         {portfolio.experiences?.length > 0 && <MLTExperience experiences={portfolio.experiences} />}
-
+        {portfolio.educations?.length > 0 && <MLTEducation educations={portfolio.educations} />}
         {portfolio.projects?.length > 0 && <MLTProjects projects={portfolio.projects} />}
-
         {settings?.showContactInfo && <MLTContact portfolio={portfolio} />}
       </main>
 

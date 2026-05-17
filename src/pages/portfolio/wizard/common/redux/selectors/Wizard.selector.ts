@@ -8,6 +8,7 @@ export const selectWizardTemplate = (state: RootState) => state.cyopo.portfolio.
 export const selectWizardProfile = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.profile;
 export const selectWizardSkills = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.skills;
 export const selectWizardExperience = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.experience;
+export const selectWizardEducation = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.education;
 export const selectWizardProjects = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.projects;
 export const selectWizardReview = (state: RootState) => state.cyopo.portfolio.wizard.form.formData.review;
 export const selectWizardDraftId = (state: RootState) => state.cyopo.portfolio.wizard.form.draftPortfolioId;

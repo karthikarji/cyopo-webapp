@@ -24,6 +24,7 @@ import type {
   WizardExperienceData,
   WizardProjectsData,
   WizardReviewData,
+  WizardEducationData,
 } from "@cyopo/Pages/portfolio/wizard/common/wizard.model.d";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
 
@@ -51,6 +52,9 @@ const portfolioToFormData = (portfolio: Portfolio): WizardFormData => ({
   },
   experience: {
     experiences: portfolio.experiences ?? [],
+  },
+  education: {
+    educations: portfolio.educations ?? [],
   },
   projects: {
     projects: portfolio.projects ?? [],
@@ -152,6 +156,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
   const updateProfile = useCallback((d: Partial<WizardProfileData>) => updateSection("profile", d), [updateSection]);
   const updateSkills = useCallback((d: Partial<WizardSkillsData>) => updateSection("skills", d), [updateSection]);
   const updateExperience = useCallback((d: Partial<WizardExperienceData>) => updateSection("experience", d), [updateSection]);
+  const updateEducation = useCallback((d: Partial<WizardEducationData>) => updateSection("education", d), [updateSection]);
   const updateProjects = useCallback((d: Partial<WizardProjectsData>) => updateSection("projects", d), [updateSection]);
   const updateReview = useCallback((d: Partial<WizardReviewData>) => updateSection("review", d), [updateSection]);
 
@@ -186,6 +191,10 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
           startDate: exp.startDate || undefined,
           endDate: exp.endDate || undefined,
           location: exp.location || undefined,
+        })),
+        educations: formData.education.educations.map((edu) => ({
+          ...edu,
+          endDate: edu.endDate || undefined,
         })),
         projects: formData.projects.projects.map((proj) => ({
           ...proj,
@@ -286,6 +295,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         updateProfile,
         updateSkills,
         updateExperience,
+        updateEducation,
         updateProjects,
         updateReview,
         goNext,

@@ -34,6 +34,9 @@ export const WIZARD_INITIAL_FORM_DATA = {
   experience: {
     experiences: [],
   },
+  education: {
+    educations: [],
+  },
   projects: {
     projects: [],
   },
