@@ -15,15 +15,49 @@ const emptyExperience = (): Experience => ({
 });
 
 const useExperienceStep = () => {
-  const { formData, updateExperience } = useWizardContext();
+  const { formData, updateExperience, updateEducation } = useWizardContext();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const experiences = formData.experience.experiences ?? [];
+  const education = formData.education;
+
+  const [activeTab, setActiveTab] = useState<"experience" | "education">("experience");
 
   const handleAddExperience = () => {
     const updated = [...experiences, emptyExperience()];
     updateExperience({ experiences: updated });
     setExpandedIndex(updated.length - 1);
+  };
+
+  // Education handlers
+  const handleAddEducation = () => {
+    updateEducation({
+      educations: [
+        ...education.educations,
+        {
+          institution: "",
+          degree: "",
+          field: "",
+          startDate: "",
+          endDate: "",
+          isCurrent: false,
+          grade: "",
+          description: "",
+        },
+      ],
+    });
+  };
+
+  const handleUpdateEducation = (index: number, field: string, value: any) => {
+    const updated = [...education.educations];
+    updated[index] = { ...updated[index], [field]: value };
+    updateEducation({ educations: updated });
+  };
+
+  const handleRemoveEducation = (index: number) => {
+    updateEducation({
+      educations: education.educations.filter((_, i) => i !== index),
+    });
   };
 
   const handleRemoveExperience = (index: number) => {
@@ -73,6 +107,8 @@ const useExperienceStep = () => {
     state: {
       experiences,
       expandedIndex,
+      educations: education.educations,
+      activeTab,
       isEmpty: experiences.length === 0,
     },
     handlers: {
@@ -83,6 +119,10 @@ const useExperienceStep = () => {
       handleUpdateAchievement,
       handleRemoveAchievement,
       handleToggleExpand,
+      handleAddEducation,
+      handleUpdateEducation,
+      handleRemoveEducation,
+      setActiveTab,
     },
   };
 };

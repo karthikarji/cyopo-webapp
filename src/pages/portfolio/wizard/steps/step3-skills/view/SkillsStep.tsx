@@ -1,6 +1,7 @@
 import React from "react";
 import { Plus, X } from "lucide-react";
 import useSkillsStep from "../controller/useSkillsStep";
+import TabSwitcher from "@cyopo/Components/tab-switcher/TabSwitcher";
 import { SKILLS_STEP_TITLE, SKILLS_STEP_SUBTITLE, SKILL_CATEGORIES, SKILL_PROFICIENCIES, SKILL_TABS } from "../SkillsStep.constants";
 
 const inputCls = [
@@ -30,24 +31,18 @@ const SkillsStep: React.FC = () => {
       </div>
 
       {/* Tab switcher */}
-      <div className='flex gap-2 bg-surface-container-low rounded-xl p-1 mb-6'>
-        {SKILL_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => handlers.setActiveTab(tab.value as any)}
-            className={[
-              "flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-              state.activeTab === tab.value ? "bg-surface text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface",
-            ].join(" ")}>
-            {tab.label}
-          </button>
-        ))}
+      <div className='mb-6'>
+        <TabSwitcher
+          tabs={SKILL_TABS.map((t) => ({ id: t.value, label: t.label }))}
+          activeTab={state.activeTab}
+          onChange={(id) => handlers.setActiveTab(id as any)}
+          fullWidth
+        />
       </div>
 
       {/* Skills tab */}
       {state.activeTab === "skills" && (
         <div className='bg-surface border border-outline-variant/20 rounded-2xl p-5'>
-          {/* Add skill form */}
           <div className='flex flex-col sm:flex-row gap-2 mb-5'>
             <input
               type='text'
@@ -85,7 +80,6 @@ const SkillsStep: React.FC = () => {
             </button>
           </div>
 
-          {/* Skills list */}
           {state.skills.length === 0 ? (
             <div className='text-center py-8 text-on-surface-variant text-sm'>No skills added yet. Add your first skill above.</div>
           ) : (
@@ -113,7 +107,6 @@ const SkillsStep: React.FC = () => {
       {/* Certifications tab */}
       {state.activeTab === "certifications" && (
         <div className='bg-surface border border-outline-variant/20 rounded-2xl p-5'>
-          {/* Add cert form */}
           <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5'>
             <input
               type='text'
@@ -145,7 +138,6 @@ const SkillsStep: React.FC = () => {
             </div>
           </div>
 
-          {/* Certs list */}
           {state.certifications.length === 0 ? (
             <div className='text-center py-8 text-on-surface-variant text-sm'>No certifications added yet.</div>
           ) : (

@@ -82,6 +82,19 @@ export interface Experience {
   technologies: string[];
 }
 
+export interface Education {
+  id?: string;
+  institution: string;
+  degree: string;
+  field?: string;
+  startDate?: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  grade?: string;
+  description?: string;
+  sortOrder?: number;
+}
+
 export interface Project {
   id?: string;
   title: string;
@@ -116,6 +129,7 @@ export interface Portfolio {
   skills: Skill[];
   certifications: Certification[];
   experiences: Experience[];
+  educations: Education[];
   projects: Project[];
   settings: PortfolioSettings;
   viewCount: number;
@@ -159,6 +173,7 @@ export interface UpdatePortfolioRequest {
   profile?: Partial<PortfolioProfile>;
   skills?: Skill[];
   certifications?: Certification[];
+  educations?: Education[];
   experiences?: Experience[];
   projects?: Project[];
   settings?: Partial<PortfolioSettings>;

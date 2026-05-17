@@ -7,6 +7,7 @@ import type {
   WizardExperienceData,
   WizardProjectsData,
   WizardReviewData,
+  WizardEducationData,
 } from "@cyopo/Pages/portfolio/wizard/common/wizard.model.d";
 
 export interface IPortfolioFormContext {
@@ -25,6 +26,7 @@ export interface IPortfolioFormContext {
   updateProfile: (data: Partial<WizardProfileData>) => void;
   updateSkills: (data: Partial<WizardSkillsData>) => void;
   updateExperience: (data: Partial<WizardExperienceData>) => void;
+  updateEducation: (data: Partial<WizardEducationData>) => void;
   updateProjects: (data: Partial<WizardProjectsData>) => void;
   updateReview: (data: Partial<WizardReviewData>) => void;
   setResumeFile: (file: File | null) => void;

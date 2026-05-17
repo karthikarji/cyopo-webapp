@@ -21,6 +21,7 @@ import {
   wizardUpdateProjects,
   wizardUpdateReview,
   wizardSetDraftId,
+  wizardUpdateEducation,
 } from "./redux/actions/Wizard.actions";
 import { addPortfolio, updatePortfolio } from "@cyopo/Pages/portfolio/common/redux/actions/Portfolio.actions";
 import { PortfolioAPIService } from "@cyopo/Services/api/portfolio/PortfolioAPIService";
@@ -35,6 +36,7 @@ import type {
   WizardExperienceData,
   WizardProjectsData,
   WizardReviewData,
+  WizardEducationData,
 } from "./wizard.model.d";
 
 const slugify = (str: string): string =>
@@ -89,6 +91,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
   const updateExperience = useCallback((data: Partial<WizardExperienceData>) => dispatch(wizardUpdateExperience(data)), [dispatch]);
   const updateProjects = useCallback((data: Partial<WizardProjectsData>) => dispatch(wizardUpdateProjects(data)), [dispatch]);
   const updateReview = useCallback((data: Partial<WizardReviewData>) => dispatch(wizardUpdateReview(data)), [dispatch]);
+  const updateEducation = useCallback((d: Partial<WizardEducationData>) => dispatch(wizardUpdateEducation(d)), [dispatch]);
 
   const handleExit = useCallback(() => {
     dispatch(wizardSetDraftId(null));
@@ -282,6 +285,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         updateProfile,
         updateSkills,
         updateExperience,
+        updateEducation,
         updateProjects,
         updateReview,
         goNext,

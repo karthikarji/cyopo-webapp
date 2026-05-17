@@ -34,6 +34,10 @@ export interface WizardExperienceData {
   experiences: Experience[];
 }
 
+export interface WizardEducationData {
+  educations: Education[];
+}
+
 export interface WizardProjectsData {
   projects: Project[];
 }
@@ -53,6 +57,7 @@ export interface WizardFormData {
   profile: WizardProfileData;
   skills: WizardSkillsData;
   experience: WizardExperienceData;
+  education: WizardEducationData;
   projects: WizardProjectsData;
   review: WizardReviewData;
 }
