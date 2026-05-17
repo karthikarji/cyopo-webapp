@@ -1,3 +1,4 @@
+import { ROUTES } from "@cyopo/Constants/route/Route.constants";
 import type { SidebarNavItem } from "./Sidebar.model.d";
 
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
@@ -6,6 +7,12 @@ export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   { label: "Templates", icon: "style", route: "/templates" },
   { label: "Analytics", icon: "monitoring", route: "/analytics" },
   { label: "Settings", icon: "settings", route: "/settings" },
+  {
+    label: "Messages",
+    icon: "mail",
+    route: ROUTES.MESSAGES,
+    badge: 0, // This will be dynamically updated based on unread messages count
+  },
 ];
 
 export const SIDEBAR_ADMIN_ITEMS: SidebarNavItem[] = [{ label: "Admin", icon: "admin_panel_settings", route: "/admin/templates", adminOnly: true }];

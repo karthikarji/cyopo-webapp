@@ -83,6 +83,7 @@ export interface Experience {
 }
 
 export interface Project {
+  id?: string;
   title: string;
   description: string;
   thumbnailUrl?: string;
@@ -110,6 +111,7 @@ export interface Portfolio {
   slug: string;
   status: PortfolioStatus;
   templateId: string;
+  templateSlug: string;
   profile: PortfolioProfile;
   skills: Skill[];
   certifications: Certification[];

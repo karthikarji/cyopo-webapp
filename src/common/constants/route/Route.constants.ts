@@ -5,7 +5,7 @@ export const ROUTES = {
   REGISTER: "/register",
 
   // Portfolio public view
-  PUBLIC_PORTFOLIO: "/:slug",
+  PUBLIC_PORTFOLIO: "/p/:slug",
 
   // Authenticated
   DASHBOARD: "/dashboard",
@@ -15,6 +15,7 @@ export const ROUTES = {
   TEMPLATES: "/templates",
   ANALYTICS: "/analytics",
   SETTINGS: "/settings",
+  MESSAGES: "/messages",
 
   // Admin
   ADMIN_TEMPLATES: "/admin/templates",

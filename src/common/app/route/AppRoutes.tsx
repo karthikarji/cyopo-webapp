@@ -15,9 +15,10 @@ const WizardPage = React.lazy(() => import("@cyopo/Pages/portfolio/wizard/Wizard
 const EditorPage = React.lazy(() => import("@cyopo/Pages/portfolio/editor/Editor.Page"));
 const TemplatesPage = React.lazy(() => import("@cyopo/Pages/templates/TemplateGallery.Page"));
 const AnalyticsPage = React.lazy(() => import("@cyopo/Pages/analytics/Analytics.Page"));
+const MessagesPage = React.lazy(() => import("@cyopo/Pages/messages/Messages.Page"));
 const SettingsPage = React.lazy(() => import("@cyopo/Pages/settings/Settings.Page"));
 const AdminPage = React.lazy(() => import("@cyopo/Pages/admin/Admin.Page"));
-const PublicPortfolioPage = React.lazy(() => import("@cyopo/Pages/public/PublicPortfolio.Page"));
+const PublicPage = React.lazy(() => import("@cyopo/Pages/public/Public.Page"));
 
 // ─── Route guards ────────────────────────────────────────────────
 
@@ -125,6 +126,14 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path={ROUTES.MESSAGES}
+          element={
+            <PrivateRoute>
+              <MessagesPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path={ROUTES.ADMIN_TEMPLATES}
           element={
             <AdminRoute>
@@ -132,7 +141,7 @@ const AppRoutes: React.FC = () => {
             </AdminRoute>
           }
         />
-        <Route path={ROUTES.PUBLIC_PORTFOLIO} element={<PublicPortfolioPage />} />
+        <Route path={ROUTES.PUBLIC_PORTFOLIO} element={<PublicPage />} />
       </Routes>
     </React.Suspense>
   );

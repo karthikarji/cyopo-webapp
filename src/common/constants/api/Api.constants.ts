@@ -22,6 +22,7 @@ export const API = {
     VIEW: (slug: string) => `/api/v1/public/portfolios/${slug}/view`,
     CONTACT: (slug: string) => `/api/v1/public/portfolios/${slug}/contact`,
     VALIDATE_SLUG: "/api/v1/public/portfolios/validate-slug",
+    RESUME_DOWNLOAD: (id: string) => `/api/v1/public/portfolios/${id}/resume`,
   },
   TEMPLATE: {
     PUBLIC: "/api/v1/public/templates",
@@ -36,5 +37,10 @@ export const API = {
     PROFILE: "/api/v1/user/ai/profile",
     EXPERIENCE: "/api/v1/user/ai/experience",
     PROJECTS: "/api/v1/user/ai/projects",
+  },
+  MESSAGES: {
+    BY_PORTFOLIO: (id: string) => `/api/v1/user/portfolios/${id}/messages`,
+    STATS: (id: string) => `/api/v1/user/portfolios/${id}/messages/stats`,
+    MARK_READ: (id: string) => `/api/v1/user/messages/${id}/read`,
   },
 } as const;
