@@ -3,4 +3,5 @@ export interface SidebarNavItem {
   icon: string;
   route: string;
   adminOnly?: boolean;
+  badge?: number;
 }

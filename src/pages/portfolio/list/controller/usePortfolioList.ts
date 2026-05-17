@@ -62,7 +62,7 @@ const usePortfolioList = () => {
   });
 
   const handleEdit = (id: string) => navigate(`/portfolios/${id}/edit`);
-  const handleViewLive = (slug: string) => window.open(`/${slug}`, "_blank");
+  const handleViewLive = (slug: string) => window.open(`/p/${slug}`, "_blank");
   const handleMenuOpen = (id: string) => setMenuOpenId(id);
   const handleMenuClose = () => setMenuOpenId(null);
   const handleCreateNew = () => navigate(ROUTES.PORTFOLIO_NEW);
