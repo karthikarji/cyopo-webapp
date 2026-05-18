@@ -49,6 +49,10 @@ const useProfileStep = () => {
     reader.readAsDataURL(file);
   };
 
+  const handlePhotoRemove = () => {
+    updateProfile({ profilePhoto: "" });
+  };
+
   const handleAddSocial = () => {
     updateProfile({
       socialMedia: [...profile.socialMedia, { platform: "LinkedIn", url: "" }],
@@ -125,6 +129,7 @@ const useProfileStep = () => {
       handleResumeChange,
       handleResumeRemove,
       handlePhotoChange,
+      handlePhotoRemove,
       handleAiFill,
     },
   };

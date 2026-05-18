@@ -16,6 +16,7 @@ const useTemplateStep = () => {
       try {
         setIsLoading(true);
         const data = await TemplateAPIService.getPublicTemplates();
+        console.log("Fetched templates from API:", data);
         if (data.length > 0) {
           // Map API templates to WizardTemplate shape
           const mapped: WizardTemplate[] = data.map((t: any) => ({
