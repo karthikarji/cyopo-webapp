@@ -7,7 +7,7 @@ interface Props {
 }
 
 const BCTSkills: React.FC<Props> = ({ skills, showLevels }) => (
-  <section className='bg-[#0f0f0f] py-20 px-6 overflow-hidden'>
+  <section id='skills' className='bg-[#0f0f0f] py-20 px-6 overflow-hidden'>
     <div className='max-w-7xl mx-auto'>
       <p className='text-[10px] font-bold tracking-[0.4em] uppercase text-white/30 mb-8'>Core Abilities</p>
       <div className='flex flex-wrap gap-3'>
