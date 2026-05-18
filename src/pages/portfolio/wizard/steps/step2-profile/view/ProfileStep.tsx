@@ -44,7 +44,7 @@ const ProfileStep: React.FC = () => {
         </h3>
         <div className='flex items-center gap-4'>
           {/* Avatar preview */}
-          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 text-primary font-bold text-lg overflow-hidden flex-shrink-0'>
+          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 text-primary font-bold text-lg overflow-hidden'>
             {profile.profilePhoto ? (
               <img src={profile.profilePhoto} alt='Profile' className='w-full h-full object-cover' />
             ) : profile.name ? (
@@ -54,14 +54,25 @@ const ProfileStep: React.FC = () => {
             )}
           </div>
 
-          {/* Upload label */}
-          <div>
-            <label className='text-sm border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer'>
+          <div className='flex flex-col gap-2'>
+            {/* Upload / Change button */}
+            <label className='text-sm border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer w-fit'>
               <span className='material-symbols-outlined text-[16px]'>upload</span>
-              Upload photo
+              {profile.profilePhoto ? "Change photo" : "Upload photo"}
               <input type='file' accept='image/jpeg,image/png,image/gif,image/webp' className='hidden' onChange={handlers.handlePhotoChange} />
             </label>
-            <p className='text-xs text-on-surface-variant mt-1'>JPG, PNG or GIF · Max 2MB</p>
+
+            {/* Remove button — only when photo exists */}
+            {profile.profilePhoto && (
+              <button
+                onClick={handlers.handlePhotoRemove}
+                className='text-sm text-error flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-error-container transition-colors w-fit'>
+                <span className='material-symbols-outlined text-[16px]'>delete</span>
+                Remove photo
+              </button>
+            )}
+
+            <p className='text-xs text-on-surface-variant'>JPG, PNG or GIF · Max 2MB</p>
           </div>
         </div>
       </div>

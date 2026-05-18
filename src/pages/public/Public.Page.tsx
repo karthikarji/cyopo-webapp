@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import PublicAPIService from "@cyopo/Services/api/public/PublicAPIService";
 import MLT from "./templates/MLT/MLT";
+import BCT from "./templates/BCT/BCT";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
 
 const TEMPLATE_MAP: Record<string, React.FC<{ portfolio: Portfolio }>> = {
   MLT: MLT,
-  // BCT, DPT, MGT added as we build them
+  BCT: BCT,
 };
 
 const FallbackTemplate = MLT;
