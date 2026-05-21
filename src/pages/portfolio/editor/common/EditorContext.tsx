@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@cyopo/Hooks/useRedux";
 import {
@@ -87,13 +87,19 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<WizardFormData | null>(null);
 
-  // Resume local state
+  // ─── Profile photo — editor uploads immediately on pick ───────────
+  // profilePhotoFile is not used in editor (upload fires on pick, not on save)
+  // We still expose it in context to satisfy IPortfolioFormContext interface
+  const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
+
+  // ─── Resume local state ───────────────────────────────────────────
+  // Raw setters — used internally after save to reset without re-triggering dirty
   const [resumeFile, setResumeFileRaw] = useState<File | null>(null);
   const [resumeFileName, setResumeFileName] = useState<string | null>(null);
   const [resumeIsDirty, setResumeIsDirtyRaw] = useState(false);
   const [resumeRemoved, setResumeRemovedRaw] = useState(false);
 
-  // Wrapped resume setters — also mark editor as dirty
+  // Wrapped setters — exposed via context, dispatch editorSetDirty(true)
   const setResumeFile = useCallback(
     (file: File | null) => {
       setResumeFileRaw(file);
@@ -118,7 +124,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     [dispatch],
   );
 
-  // Load portfolio on mount
+  // ─── Load portfolio on mount ──────────────────────────────────────
   useEffect(() => {
     if (!id) return;
     const load = async () => {
@@ -127,6 +133,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         const data = await PortfolioAPIService.getPortfolioById(id);
         dispatch(editorSetPortfolio(data));
         setFormData(portfolioToFormData(data));
+        // Pre-fill resume filename so UI shows existing resume
         if (data.resumeFileName) {
           setResumeFileName(data.resumeFileName);
         }
@@ -141,6 +148,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     };
   }, [id, dispatch]);
 
+  // ─── Form section updaters ────────────────────────────────────────
   const updateSection = useCallback(
     (section: keyof WizardFormData, data: any) => {
       setFormData((prev) => {
@@ -160,16 +168,18 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
   const updateProjects = useCallback((d: Partial<WizardProjectsData>) => updateSection("projects", d), [updateSection]);
   const updateReview = useCallback((d: Partial<WizardReviewData>) => updateSection("review", d), [updateSection]);
 
+  // ─── Navigation ───────────────────────────────────────────────────
   const goNext = useCallback(() => setCurrentStep((s) => Math.min(s + 1, 6)), []);
   const goPrev = useCallback(() => setCurrentStep((s) => Math.max(s - 1, 1)), []);
   const goToStep = useCallback((s: number) => setCurrentStep(s), []);
 
+  // ─── Save ─────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
     if (!id || !formData) return;
     try {
       dispatch(editorSetSaving(true));
 
-      // Step 1 — always save portfolio
+      // Step 1 — always save portfolio data
       const updated = await PortfolioAPIService.updatePortfolio(id, {
         name: formData.review.portfolioName,
         slug: formData.review.slug,
@@ -186,7 +196,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         },
         skills: formData.skills.skills,
         certifications: formData.skills.certifications,
-        experiences: formData.experience.experiences.map(({ id, ...exp }) => ({
+        experiences: formData.experience.experiences.map(({ id: _id, ...exp }) => ({
           ...exp,
           startDate: exp.startDate || undefined,
           endDate: exp.endDate || undefined,
@@ -214,19 +224,19 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
       dispatch(editorSetPortfolio(updated));
       dispatch(updatePortfolioAction(updated));
 
-      // Step 2 — delete resume if removed
+      // Step 2 — delete resume if user removed it
       if (resumeRemoved) {
         await PortfolioAPIService.deleteResume(id);
         setResumeFileName(null);
-        setResumeRemovedRaw(false);
+        setResumeRemovedRaw(false); // raw — avoids re-triggering dirty
       }
 
-      // Step 3 — upload new resume if dirty
+      // Step 3 — upload resume if user picked a new file
       if (resumeIsDirty && resumeFile) {
         await PortfolioAPIService.uploadResume(id, resumeFile);
         setResumeFileName(resumeFile.name);
-        setResumeIsDirtyRaw(false);
-        setResumeFileRaw(null);
+        setResumeIsDirtyRaw(false); // raw — avoids re-triggering dirty
+        setResumeFileRaw(null); // raw — avoids re-triggering dirty
       }
 
       dispatch(editorSetLastSaved(new Date().toISOString()));
@@ -236,8 +246,16 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     } finally {
       dispatch(editorSetSaving(false));
     }
-  }, [id, formData, resumeFile, resumeIsDirty, resumeRemoved, dispatch]);
+  }, [
+    id,
+    formData,
+    resumeFile, // ← must be here so closure captures latest File object
+    resumeIsDirty, // ← must be here
+    resumeRemoved, // ← must be here
+    dispatch,
+  ]);
 
+  // ─── Publish ──────────────────────────────────────────────────────
   const handlePublish = useCallback(async () => {
     if (!id || !formData) return;
     try {
@@ -256,10 +274,12 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     }
   }, [id, formData, portfolio, dispatch, handleSave]);
 
+  // ─── Exit ─────────────────────────────────────────────────────────
   const handleExit = useCallback(() => {
     navigate(ROUTES.PORTFOLIOS);
   }, [navigate]);
 
+  // ─── Loading state ────────────────────────────────────────────────
   if (isLoading || !formData) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-background'>
@@ -271,6 +291,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     );
   }
 
+  // ─── Provider ─────────────────────────────────────────────────────
   return (
     <PortfolioFormContext.Provider
       value={{
@@ -281,7 +302,13 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         lastSaved,
         portfolioId: id ?? null,
 
+        // Profile photo — editor uploads immediately on pick
+        // File object not stored here; exposed to satisfy interface
+        profilePhotoFile,
+        setProfilePhotoFile,
+
         // Resume state — wrapped setters dispatch editorSetDirty(true)
+        // Raw setters used internally after save to avoid re-triggering dirty
         resumeFile,
         resumeFileName,
         resumeIsDirty,
@@ -291,6 +318,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         setResumeIsDirty,
         setResumeRemoved,
 
+        // Form updaters
         updateTemplate,
         updateProfile,
         updateSkills,
@@ -298,9 +326,13 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
         updateEducation,
         updateProjects,
         updateReview,
+
+        // Navigation
         goNext,
         goPrev,
         goToStep,
+
+        // Actions
         handleSaveDraft: handleSave,
         handleExit,
         handlePublish,

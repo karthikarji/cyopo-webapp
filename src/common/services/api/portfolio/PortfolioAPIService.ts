@@ -141,6 +141,27 @@ class PortfolioAPIServiceClass {
       throw new Error(extractApiError(error));
     }
   }
+
+  async uploadProfilePhoto(portfolioId: string, file: File): Promise<string> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await REST.post<ApiResponse<{ url: string }>>(API.PORTFOLIO.PROFILE_PHOTO(portfolioId), formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data?.url ?? "";
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
+
+  async deleteProfilePhoto(portfolioId: string): Promise<void> {
+    try {
+      await REST.delete(API.PORTFOLIO.PROFILE_PHOTO(portfolioId));
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
 }
 
 export const PortfolioAPIService = new PortfolioAPIServiceClass();

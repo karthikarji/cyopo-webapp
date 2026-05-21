@@ -21,6 +21,7 @@ export interface IPortfolioFormContext {
   resumeFileName: string | null;
   resumeIsDirty: boolean;
   resumeRemoved: boolean;
+  profilePhotoFile: File | null;
 
   updateTemplate: (data: Partial<WizardTemplateData>) => void;
   updateProfile: (data: Partial<WizardProfileData>) => void;
@@ -33,6 +34,7 @@ export interface IPortfolioFormContext {
   setResumeFileName: (name: string | null) => void;
   setResumeIsDirty: (dirty: boolean) => void;
   setResumeRemoved: (removed: boolean) => void;
+  setProfilePhotoFile: (file: File | null) => void;
   goNext: () => void;
   goPrev: () => void;
   goToStep: (step: number) => void;

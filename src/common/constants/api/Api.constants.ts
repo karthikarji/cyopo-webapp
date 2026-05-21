@@ -15,6 +15,12 @@ export const API = {
     DUPLICATE: (id: string) => `/api/v1/user/portfolios/${id}/duplicate`,
     PREVIEW: (slug: string) => `/api/v1/user/portfolios/preview/${slug}`,
     RESUME: (id: string) => `/api/v1/user/portfolios/${id}/resume`,
+    PROFILE_PHOTO: (id: string) => `/api/v1/user/portfolios/${id}/profile-photo`,
+    PHOTOS: {
+      BASE: (pid: string, projId: string) => `/api/v1/user/portfolios/${pid}/projects/${projId}/photos`,
+      BY_ID: (pid: string, projId: string, photoId: string) => `/api/v1/user/portfolios/${pid}/projects/${projId}/photos/${photoId}`,
+      THUMBNAIL: (pid: string, projId: string, photoId: string) => `/api/v1/user/portfolios/${pid}/projects/${projId}/photos/${photoId}/thumbnail`,
+    },
   },
   PUBLIC: {
     PORTFOLIOS: "/api/v1/public/portfolios",
