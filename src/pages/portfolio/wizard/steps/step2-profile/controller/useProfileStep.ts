@@ -6,10 +6,12 @@ import Notify from "@cyopo/Services/notification/Notify";
 import Spinner from "@cyopo/Services/spinner/Spinner";
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
+import { PortfolioAPIService } from "@cyopo/Services/api/portfolio/PortfolioAPIService";
 
 const useProfileStep = () => {
   const {
     formData,
+    portfolioId,
     updateProfile,
     resumeFileName,
     resumeIsDirty,
@@ -18,9 +20,11 @@ const useProfileStep = () => {
     setResumeFileName,
     setResumeIsDirty,
     setResumeRemoved,
+    setProfilePhotoFile,
   } = useWizardContext();
   const user = useAppSelector(selectUser);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const profile = formData.profile;
   const showResume = !!(resumeFileName && !resumeRemoved);
@@ -35,22 +39,57 @@ const useProfileStep = () => {
     updateProfile({ socialMedia: updated });
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
       Notify.error("File size exceeds 2MB limit");
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      updateProfile({ profilePhoto: reader.result as string });
-    };
-    reader.readAsDataURL(file);
+
+    if (!portfolioId) {
+      // Wizard — no portfolio yet
+      // Store File object locally, show temporary browser preview
+      // Upload to Cloudinary happens on Save Draft / Publish
+      // This avoids orphaned Cloudinary files if user never saves
+      setProfilePhotoFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      updateProfile({ profilePhoto: previewUrl });
+      return;
+    }
+
+    // Editor — portfolio exists, upload immediately to Cloudinary
+    try {
+      setIsUploadingPhoto(true);
+      const url = await PortfolioAPIService.uploadProfilePhoto(portfolioId, file);
+      updateProfile({ profilePhoto: url });
+      Notify.success("Profile photo updated");
+    } catch (err: any) {
+      Notify.error(err?.message ?? "Failed to upload photo");
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
-  const handlePhotoRemove = () => {
-    updateProfile({ profilePhoto: "" });
+  const handlePhotoRemove = async () => {
+    if (!portfolioId) {
+      // Wizard — just clear local state, nothing uploaded yet
+      setProfilePhotoFile(null);
+      updateProfile({ profilePhoto: "" });
+      return;
+    }
+
+    // Editor — delete from Cloudinary immediately
+    try {
+      setIsUploadingPhoto(true);
+      await PortfolioAPIService.deleteProfilePhoto(portfolioId);
+      updateProfile({ profilePhoto: "" });
+      Notify.success("Profile photo removed");
+    } catch (err: any) {
+      Notify.error(err?.message ?? "Failed to remove photo");
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   const handleAddSocial = () => {
@@ -120,6 +159,7 @@ const useProfileStep = () => {
       showResume,
       resumeFileName,
       resumeIsDirty,
+      isUploadingPhoto,
     },
     handlers: {
       handleChange,

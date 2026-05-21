@@ -25,9 +25,9 @@ const MLTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
             className='bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300 group'>
             {/* Thumbnail or gradient placeholder */}
             <div className='h-44 overflow-hidden bg-gradient-to-br from-violet-50 to-blue-50 flex items-center justify-center'>
-              {project.thumbnailUrl ? (
+              {project.thumbnail ? (
                 <img
-                  src={project.thumbnailUrl}
+                  src={project.thumbnail}
                   alt={project.title}
                   className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
                 />

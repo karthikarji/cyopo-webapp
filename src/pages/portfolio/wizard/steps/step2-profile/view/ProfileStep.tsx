@@ -44,8 +44,11 @@ const ProfileStep: React.FC = () => {
         </h3>
         <div className='flex items-center gap-4'>
           {/* Avatar preview */}
-          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 text-primary font-bold text-lg overflow-hidden'>
-            {profile.profilePhoto ? (
+          <div className='w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0 overflow-hidden'>
+            {state.isUploadingPhoto ? (
+              // Spinner overlay while uploading/removing
+              <span className='w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+            ) : profile.profilePhoto ? (
               <img src={profile.profilePhoto} alt='Profile' className='w-full h-full object-cover' />
             ) : profile.name ? (
               profile.name[0]?.toUpperCase()
@@ -56,14 +59,26 @@ const ProfileStep: React.FC = () => {
 
           <div className='flex flex-col gap-2'>
             {/* Upload / Change button */}
-            <label className='text-sm border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer w-fit'>
+            <label
+              className={[
+                "text-sm border border-outline-variant/30 rounded-lg px-3 py-2",
+                "text-on-surface-variant hover:bg-surface-container transition-colors",
+                "flex items-center gap-2 cursor-pointer w-fit",
+                state.isUploadingPhoto ? "opacity-50 pointer-events-none" : "",
+              ].join(" ")}>
               <span className='material-symbols-outlined text-[16px]'>upload</span>
               {profile.profilePhoto ? "Change photo" : "Upload photo"}
-              <input type='file' accept='image/jpeg,image/png,image/gif,image/webp' className='hidden' onChange={handlers.handlePhotoChange} />
+              <input
+                type='file'
+                accept='image/jpeg,image/png,image/gif,image/webp'
+                className='hidden'
+                onChange={handlers.handlePhotoChange}
+                disabled={state.isUploadingPhoto}
+              />
             </label>
 
             {/* Remove button — only when photo exists */}
-            {profile.profilePhoto && (
+            {profile.profilePhoto && !state.isUploadingPhoto && (
               <button
                 onClick={handlers.handlePhotoRemove}
                 className='text-sm text-error flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-error-container transition-colors w-fit'>

@@ -3,6 +3,7 @@ import { Plus, X, ChevronDown, ChevronUp, FolderOpen } from "lucide-react";
 import Button from "@cyopo/Components/button/Button";
 import useProjectsStep from "../controller/useProjectsStep";
 import { PROJECTS_STEP_TITLE, PROJECTS_STEP_SUBTITLE, PROJECTS_EMPTY_TITLE, PROJECTS_EMPTY_SUB, PROJECTS_EMPTY_CTA } from "../ProjectsStep.constants";
+import Notify from "@cyopo/Services/notification/Notify";
 
 const inputCls = [
   "w-full px-3 py-2.5 rounded-xl text-sm",
@@ -49,6 +50,8 @@ const ProjectsStep: React.FC = () => {
         {state.projects.map((project, index) => {
           const isExpanded = state.expandedIndex === index;
           const title = project.title || `Project #${index + 1}`;
+          const photos = state.projectPhotos[project.id ?? ""] ?? [];
+          const isUploading = state.uploadingPhotos[project.id ?? ""];
 
           return (
             <div key={index} className='bg-surface border border-outline-variant/20 rounded-2xl overflow-hidden'>
@@ -196,6 +199,123 @@ const ProjectsStep: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* ─── Photos section ──────────────────────────────── */}
+                  <div>
+                    <div className='flex items-center justify-between mb-3'>
+                      <label className='text-xs font-medium text-on-surface-variant'>
+                        Project Photos
+                        <span className='ml-1 text-on-surface-variant/50'>({photos.length}/5)</span>
+                      </label>
+
+                      {/* Upload button */}
+                      <label
+                        className={[
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                          "border border-outline-variant/30 text-on-surface-variant",
+                          "hover:bg-surface-container cursor-pointer transition-colors",
+                          isUploading ? "opacity-50 pointer-events-none" : "",
+                        ].join(" ")}>
+                        {isUploading ? (
+                          <>
+                            <span className='w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <span className='material-symbols-outlined text-[14px]'>add_photo_alternate</span>
+                            Add Photos
+                          </>
+                        )}
+                        <input
+                          type='file'
+                          multiple
+                          accept='image/jpeg,image/png,image/webp,image/gif'
+                          className='hidden'
+                          onChange={async (e) => {
+                            const files = Array.from(e.target.files ?? []);
+                            if (project.id) {
+                              await handlers.handleUploadPhotos(project.id, files);
+                            } else {
+                              Notify.warn("Save the portfolio first before uploading photos");
+                            }
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Photo grid */}
+                    {photos.length > 0 ? (
+                      <div className='grid grid-cols-3 sm:grid-cols-5 gap-2'>
+                        {photos.map((photo) => {
+                          const isDeleting = state.deletingPhotoId === photo.id;
+                          const isThumbbing = state.thumbnailPhotoId === photo.id;
+                          const isBusy = isDeleting || isThumbbing;
+
+                          return (
+                            <div
+                              key={photo.id}
+                              className={[
+                                "relative rounded-xl overflow-hidden aspect-square group",
+                                "border-2 transition-all duration-200",
+                                photo.isThumbnail ? "border-primary" : "border-outline-variant/20 hover:border-outline-variant/50",
+                              ].join(" ")}>
+                              <img
+                                src={photo.fileUrl}
+                                alt={photo.fileName}
+                                className={["w-full h-full object-cover", isBusy ? "opacity-50" : ""].join(" ")}
+                              />
+
+                              {/* Spinner overlay while deleting or setting thumbnail */}
+                              {isBusy && (
+                                <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                                  <span className='w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                                </div>
+                              )}
+
+                              {/* Cover badge — hidden while busy */}
+                              {photo.isThumbnail && !isBusy && (
+                                <div className='absolute top-1 left-1 px-1.5 py-0.5 bg-primary text-on-primary text-[9px] font-bold rounded-md'>
+                                  Cover
+                                </div>
+                              )}
+
+                              {/* Hover actions — hidden while busy */}
+                              {!isBusy && (
+                                <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5'>
+                                  {!photo.isThumbnail && project.id && (
+                                    <button
+                                      onClick={() => handlers.handleSetThumbnail(project.id!, photo.id)}
+                                      title='Set as cover'
+                                      className='w-7 h-7 bg-white/20 hover:bg-primary rounded-lg flex items-center justify-center transition-colors'>
+                                      <span className='material-symbols-outlined text-white text-[13px]'>star</span>
+                                    </button>
+                                  )}
+                                  {project.id && (
+                                    <button
+                                      onClick={() => handlers.handleDeletePhoto(project.id!, photo.id)}
+                                      title='Delete photo'
+                                      className='w-7 h-7 bg-white/20 hover:bg-error rounded-lg flex items-center justify-center transition-colors'>
+                                      <X size={12} className='text-white' />
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* Empty photo state */
+                      <div className='flex flex-col items-center justify-center py-8 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-xl text-center'>
+                        <span className='material-symbols-outlined text-on-surface-variant/40 text-3xl mb-2'>add_photo_alternate</span>
+                        <p className='text-xs text-on-surface-variant'>No photos yet — add up to 5</p>
+                        <p className='text-[10px] text-on-surface-variant/50 mt-0.5'>First photo becomes the cover thumbnail</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* ─── End photos section ──────────────────────────── */}
                 </div>
               )}
             </div>

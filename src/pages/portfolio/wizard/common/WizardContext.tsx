@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@cyopo/Hooks/useRedux";
 import {
@@ -28,8 +28,8 @@ import { PortfolioAPIService } from "@cyopo/Services/api/portfolio/PortfolioAPIS
 import Notify from "@cyopo/Services/notification/Notify";
 import Spinner from "@cyopo/Services/spinner/Spinner";
 import { ROUTES } from "@cyopo/Constants/route/Route.constants";
+import { PortfolioFormContext, usePortfolioFormContext } from "@cyopo/Pages/portfolio/common/context/PortfolioFormContext";
 import type {
-  WizardContextValue,
   WizardTemplateData,
   WizardProfileData,
   WizardSkillsData,
@@ -39,6 +39,8 @@ import type {
   WizardEducationData,
 } from "./wizard.model.d";
 
+export { usePortfolioFormContext as useWizardContext };
+
 const slugify = (str: string): string =>
   str
     .toLowerCase()
@@ -46,18 +48,6 @@ const slugify = (str: string): string =>
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "")
     .replace(/-+/g, "-");
-
-// const WizardContext = createContext<WizardContextValue | null>(null);
-
-// export const useWizardContext = (): WizardContextValue => {
-//   const ctx = useContext(WizardContext);
-//   if (!ctx) throw new Error("useWizardContext must be used inside WizardProvider");
-//   return ctx;
-// };
-
-import { PortfolioFormContext, usePortfolioFormContext } from "@cyopo/Pages/portfolio/common/context/PortfolioFormContext";
-
-export { usePortfolioFormContext as useWizardContext };
 
 interface Props {
   children: React.ReactNode;
@@ -67,38 +57,47 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
-  const [resumeIsDirty, setResumeIsDirty] = useState(false);
-  const [resumeRemoved, setResumeRemoved] = useState(false);
-
-  // All state from Redux
+  // ─── Redux state ──────────────────────────────────────────────────
   const currentStep = useAppSelector(selectWizardStep);
   const formData = useAppSelector(selectWizardFormData);
   const isDirty = useAppSelector(selectWizardIsDirty);
   const lastSaved = useAppSelector(selectWizardLastSaved);
   const draftPortfolioId = useAppSelector(selectWizardDraftId);
 
-  // Navigation
+  // ─── Local file state — not in Redux ─────────────────────────────
+  // Profile photo — stored as File until portfolio is saved
+  // Uploaded to Cloudinary AFTER portfolio create/update (Option D)
+  // to avoid orphaned files if user closes without saving
+  const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
+
+  // Resume file state
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const [resumeIsDirty, setResumeIsDirty] = useState(false);
+  const [resumeRemoved, setResumeRemoved] = useState(false);
+
+  // ─── Navigation ───────────────────────────────────────────────────
   const goNext = useCallback(() => dispatch(wizardGoNext()), [dispatch]);
   const goPrev = useCallback(() => dispatch(wizardGoPrev()), [dispatch]);
   const goToStep = useCallback((s: number) => dispatch(wizardGoToStep(s)), [dispatch]);
 
-  // Form updates — dispatched to Redux
-  const updateTemplate = useCallback((data: Partial<WizardTemplateData>) => dispatch(wizardUpdateTemplate(data)), [dispatch]);
-  const updateProfile = useCallback((data: Partial<WizardProfileData>) => dispatch(wizardUpdateProfile(data)), [dispatch]);
-  const updateSkills = useCallback((data: Partial<WizardSkillsData>) => dispatch(wizardUpdateSkills(data)), [dispatch]);
-  const updateExperience = useCallback((data: Partial<WizardExperienceData>) => dispatch(wizardUpdateExperience(data)), [dispatch]);
-  const updateProjects = useCallback((data: Partial<WizardProjectsData>) => dispatch(wizardUpdateProjects(data)), [dispatch]);
-  const updateReview = useCallback((data: Partial<WizardReviewData>) => dispatch(wizardUpdateReview(data)), [dispatch]);
+  // ─── Form updates → Redux ─────────────────────────────────────────
+  const updateTemplate = useCallback((d: Partial<WizardTemplateData>) => dispatch(wizardUpdateTemplate(d)), [dispatch]);
+  const updateProfile = useCallback((d: Partial<WizardProfileData>) => dispatch(wizardUpdateProfile(d)), [dispatch]);
+  const updateSkills = useCallback((d: Partial<WizardSkillsData>) => dispatch(wizardUpdateSkills(d)), [dispatch]);
+  const updateExperience = useCallback((d: Partial<WizardExperienceData>) => dispatch(wizardUpdateExperience(d)), [dispatch]);
+  const updateProjects = useCallback((d: Partial<WizardProjectsData>) => dispatch(wizardUpdateProjects(d)), [dispatch]);
+  const updateReview = useCallback((d: Partial<WizardReviewData>) => dispatch(wizardUpdateReview(d)), [dispatch]);
   const updateEducation = useCallback((d: Partial<WizardEducationData>) => dispatch(wizardUpdateEducation(d)), [dispatch]);
 
+  // ─── Exit ─────────────────────────────────────────────────────────
   const handleExit = useCallback(() => {
     dispatch(wizardSetDraftId(null));
     dispatch(wizardReset());
     navigate(ROUTES.PORTFOLIOS);
   }, [dispatch, navigate]);
 
+  // ─── Save Draft ───────────────────────────────────────────────────
   const handleSaveDraft = useCallback(async () => {
     if (!formData.template.templateId) {
       Notify.warn("Please select a template first");
@@ -117,13 +116,29 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         phone: formData.profile.phone || undefined,
         location: formData.profile.location || undefined,
         website: formData.profile.website || undefined,
-        profilePhoto: formData.profile.profilePhoto || undefined,
+        // blob: URL is a temporary browser preview — never send to backend
+        // real Cloudinary URL will be set after upload in Step 2 below
+        profilePhoto: formData.profile.profilePhoto?.startsWith("blob:") ? undefined : formData.profile.profilePhoto || undefined,
         socialMedia: formData.profile.socialMedia || [],
       },
       skills: formData.skills.skills ?? [],
       certifications: formData.skills.certifications ?? [],
-      experiences: formData.experience.experiences ?? [],
-      projects: formData.projects.projects ?? [],
+      experiences: formData.experience.experiences.map((exp) => ({
+        ...exp,
+        startDate: exp.startDate || undefined,
+        endDate: exp.endDate || undefined,
+        location: exp.location || undefined,
+      })),
+      projects: formData.projects.projects.map((proj) => ({
+        ...proj,
+        completedDate: proj.completedDate || undefined,
+        demoUrl: proj.demoUrl || undefined,
+        githubUrl: proj.githubUrl || undefined,
+      })),
+      educations: formData.education.educations.map((edu) => ({
+        ...edu,
+        endDate: edu.endDate || undefined,
+      })),
       settings: {
         isPublic: false,
         showContactInfo: formData.review.showContact ?? true,
@@ -144,19 +159,29 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         // First save — create new draft
         portfolio = await Spinner.on(PortfolioAPIService.createPortfolio(payload));
         dispatch(addPortfolio(portfolio));
-        // Store the draft ID so next save updates instead of creating
         dispatch(wizardSetDraftId(portfolio.id));
       }
 
-      // Resume handling — sequential after portfolio save
+      // Portfolio ID for all subsequent calls
       const pid = draftPortfolioId ?? portfolio.id;
 
+      // Step 2 — Upload profile photo AFTER portfolio exists
+      // Option D: we stored the File locally on pick, upload now
+      // This prevents orphaned Cloudinary files if user never saves
+      if (profilePhotoFile) {
+        const url = await PortfolioAPIService.uploadProfilePhoto(pid, profilePhotoFile);
+        updateProfile({ profilePhoto: url }); // replace blob: with Cloudinary URL
+        setProfilePhotoFile(null); // clear file from state
+      }
+
+      // Step 3 — Delete resume if user removed it
       if (resumeRemoved) {
         await PortfolioAPIService.deleteResume(pid);
         setResumeFileName(null);
         setResumeRemoved(false);
       }
 
+      // Step 4 — Upload resume if user picked a new file
       if (resumeIsDirty && resumeFile) {
         await PortfolioAPIService.uploadResume(pid, resumeFile);
         setResumeFileName(resumeFile.name);
@@ -169,8 +194,9 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
     } catch (err: any) {
       Notify.error(err?.message ?? "Failed to save draft");
     }
-  }, [formData, draftPortfolioId, resumeFile, resumeIsDirty, resumeRemoved, dispatch]);
+  }, [formData, draftPortfolioId, profilePhotoFile, resumeFile, resumeIsDirty, resumeRemoved, dispatch, updateProfile]);
 
+  // ─── Publish ──────────────────────────────────────────────────────
   const handlePublish = useCallback(async () => {
     if (!formData.template.templateId) {
       Notify.warn("Please select a template first");
@@ -195,7 +221,8 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         phone: formData.profile.phone || undefined,
         location: formData.profile.location || undefined,
         website: formData.profile.website || undefined,
-        profilePhoto: formData.profile.profilePhoto || undefined,
+        // Same as handleSaveDraft — strip blob: URLs
+        profilePhoto: formData.profile.profilePhoto?.startsWith("blob:") ? undefined : formData.profile.profilePhoto || undefined,
         socialMedia: formData.profile.socialMedia,
       },
       skills: formData.skills.skills,
@@ -212,6 +239,10 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         demoUrl: proj.demoUrl || undefined,
         githubUrl: proj.githubUrl || undefined,
       })),
+      educations: formData.education.educations.map((edu) => ({
+        ...edu,
+        endDate: edu.endDate || undefined,
+      })),
       settings: {
         isPublic: formData.review.isPublic,
         showContactInfo: formData.review.showContact,
@@ -225,7 +256,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
       let portfolio;
 
       if (draftPortfolioId) {
-        // Draft exists — update it then publish
+        // Draft exists — update then publish
         portfolio = await Spinner.on(PortfolioAPIService.updatePortfolio(draftPortfolioId, payload));
         dispatch(updatePortfolio(portfolio));
       } else {
@@ -234,15 +265,23 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         dispatch(addPortfolio(portfolio));
       }
 
-      // Resume handling — sequential after portfolio save
       const pid = draftPortfolioId ?? portfolio.id;
 
+      // Step 2 — Upload profile photo (same pattern as handleSaveDraft)
+      if (profilePhotoFile) {
+        const url = await PortfolioAPIService.uploadProfilePhoto(pid, profilePhotoFile);
+        updateProfile({ profilePhoto: url });
+        setProfilePhotoFile(null);
+      }
+
+      // Step 3 — Delete resume if removed
       if (resumeRemoved) {
         await PortfolioAPIService.deleteResume(pid);
         setResumeFileName(null);
         setResumeRemoved(false);
       }
 
+      // Step 4 — Upload resume if new file picked
       if (resumeIsDirty && resumeFile) {
         await PortfolioAPIService.uploadResume(pid, resumeFile);
         setResumeFileName(resumeFile.name);
@@ -250,7 +289,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         setResumeFile(null);
       }
 
-      // Publish if isPublic
+      // Step 5 — Publish if isPublic toggled on
       if (formData.review.isPublic) {
         await PortfolioAPIService.updateStatus(portfolio.id, "PUBLISHED");
       }
@@ -262,8 +301,9 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
     } catch (err: any) {
       Notify.error(err?.message ?? "Failed to create portfolio");
     }
-  }, [formData, draftPortfolioId, resumeFile, resumeIsDirty, resumeRemoved, dispatch, navigate, goToStep]);
+  }, [formData, draftPortfolioId, profilePhotoFile, resumeFile, resumeIsDirty, resumeRemoved, dispatch, navigate, goToStep, updateProfile]);
 
+  // ─── Provider ─────────────────────────────────────────────────────
   return (
     <PortfolioFormContext.Provider
       value={{
@@ -273,6 +313,12 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         isDirty,
         lastSaved,
         portfolioId: draftPortfolioId,
+
+        // Profile photo file — wizard stores locally, uploads on save
+        profilePhotoFile,
+        setProfilePhotoFile,
+
+        // Resume state
         resumeFile,
         resumeFileName,
         resumeIsDirty,
@@ -281,6 +327,8 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         setResumeFileName,
         setResumeIsDirty,
         setResumeRemoved,
+
+        // Form updaters
         updateTemplate,
         updateProfile,
         updateSkills,
@@ -288,9 +336,13 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         updateEducation,
         updateProjects,
         updateReview,
+
+        // Navigation
         goNext,
         goPrev,
         goToStep,
+
+        // Actions
         handleSaveDraft,
         handleExit,
         handlePublish,

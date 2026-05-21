@@ -29,9 +29,9 @@ const BCTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
     {projects.map((project, i) => (
       <div key={project.id ?? i} className='relative h-[70vh] overflow-hidden group cursor-pointer border-b border-white/5'>
         {/* Background image or gradient */}
-        {project.thumbnailUrl ? (
+        {project.thumbnail ? (
           <img
-            src={project.thumbnailUrl}
+            src={project.thumbnail}
             alt={project.title}
             className='absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700'
           />
