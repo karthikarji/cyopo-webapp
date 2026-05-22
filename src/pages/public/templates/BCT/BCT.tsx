@@ -9,12 +9,10 @@ import BCTExperience from "./components/BCTExperience";
 import BCTEducation from "./components/BCTEducation";
 import BCTContact from "./components/BCTContact";
 import BCTFooter from "./components/BCTFooter";
+import BCTCookieBanner from "./components/BCTCookieBanner";
+import { PublicTemplateProps } from "../../Public.Page";
 
-interface Props {
-  portfolio: Portfolio;
-}
-
-const BCT: React.FC<Props> = ({ portfolio }) => {
+const BCT: React.FC<PublicTemplateProps> = ({ portfolio, cookieConsent }) => {
   const { profile, settings } = portfolio;
 
   return (
@@ -35,6 +33,8 @@ const BCT: React.FC<Props> = ({ portfolio }) => {
       {settings?.showContactInfo && <BCTContact portfolio={portfolio} />}
 
       <BCTFooter portfolio={portfolio} />
+
+      <BCTCookieBanner hasResponded={cookieConsent.hasResponded} onAccept={cookieConsent.accept} onDecline={cookieConsent.decline} />
     </div>
   );
 };

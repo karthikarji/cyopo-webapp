@@ -183,6 +183,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
       const updated = await PortfolioAPIService.updatePortfolio(id, {
         name: formData.review.portfolioName,
         slug: formData.review.slug,
+        templateId: formData.template.templateId,
         profile: {
           name: formData.profile.name,
           title: formData.profile.title,

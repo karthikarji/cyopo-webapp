@@ -4,8 +4,20 @@ import PublicAPIService from "@cyopo/Services/api/public/PublicAPIService";
 import MLT from "./templates/MLT/MLT";
 import BCT from "./templates/BCT/BCT";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
+import useCookieConsent from "@cyopo/Hooks/useCookieConsent";
 
-const TEMPLATE_MAP: Record<string, React.FC<{ portfolio: Portfolio }>> = {
+export interface CookieConsentProps {
+  hasResponded: boolean;
+  accept: () => void;
+  decline: () => void;
+}
+
+export interface PublicTemplateProps {
+  portfolio: Portfolio;
+  cookieConsent: CookieConsentProps;
+}
+
+const TEMPLATE_MAP: Record<string, React.FC<PublicTemplateProps>> = {
   MLT: MLT,
   BCT: BCT,
 };
@@ -17,14 +29,18 @@ const PublicPage: React.FC = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [hasRecordedView, setHasRecordedView] = useState(false);
+
+  // Single instance of cookie consent — shared with banner via props
+  const { isAccepted, accept, decline, hasResponded } = useCookieConsent();
 
   useEffect(() => {
     if (!slug) return;
     const load = async () => {
       try {
+        setIsLoading(true);
         const data = await PublicAPIService.getBySlug(slug);
         setPortfolio(data);
-        PublicAPIService.recordView(slug);
       } catch {
         setNotFound(true);
       } finally {
@@ -33,6 +49,12 @@ const PublicPage: React.FC = () => {
     };
     load();
   }, [slug]);
+
+  useEffect(() => {
+    if (!portfolio || !slug || !isAccepted || hasRecordedView) return;
+    PublicAPIService.recordView(slug);
+    setHasRecordedView(true);
+  }, [portfolio, slug, isAccepted, hasRecordedView]);
 
   if (isLoading) {
     return (
@@ -54,7 +76,13 @@ const PublicPage: React.FC = () => {
 
   const TemplateComponent = TEMPLATE_MAP[portfolio.templateSlug] ?? FallbackTemplate;
 
-  return <TemplateComponent portfolio={portfolio} />;
+  return (
+    <TemplateComponent
+      portfolio={portfolio}
+      // Pass consent props so banner uses same state instance
+      cookieConsent={{ hasResponded, accept, decline }}
+    />
+  );
 };
 
 export default PublicPage;
