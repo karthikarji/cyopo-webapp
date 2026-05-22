@@ -1,7 +1,7 @@
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
-import type { ApiResponse } from "@cyopo/Models/common/common.model";
+import { ApiResponse } from "@cyopo/Models/auth/auth.model";
 
 class PublicAPIService {
   async getBySlug(slug: string): Promise<Portfolio> {
@@ -15,7 +15,19 @@ class PublicAPIService {
 
   async recordView(slug: string): Promise<void> {
     try {
-      await REST.post(API.PUBLIC.VIEW(slug));
+      // Generate or retrieve session token for anonymous deduplication
+      let sessionToken = localStorage.getItem("cyopo_session");
+      if (!sessionToken) {
+        sessionToken = crypto.randomUUID();
+        localStorage.setItem("cyopo_session", sessionToken);
+      }
+      await REST.post(
+        API.PUBLIC.VIEW(slug),
+        {},
+        {
+          headers: { "X-Session-Token": sessionToken },
+        },
+      );
     } catch {
       // Silently fail — view tracking is non-critical
     }

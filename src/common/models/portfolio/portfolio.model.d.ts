@@ -170,6 +170,7 @@ export interface CreatePortfolioRequest {
 export interface UpdatePortfolioRequest {
   name?: string;
   slug?: string;
+  templateId?: string;
   profile?: Partial<PortfolioProfile>;
   skills?: Skill[];
   certifications?: Certification[];
