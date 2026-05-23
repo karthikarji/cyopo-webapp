@@ -19,7 +19,11 @@ const MLTCookieBanner: React.FC<Props> = ({ hasResponded, onAccept, onDecline })
           <button onClick={onDecline} className='px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors'>
             Decline
           </button>
-          <button onClick={onAccept} className='px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition-colors'>
+          {/* Accept button uses var(--tp) */}
+          <button
+            onClick={onAccept}
+            style={{ background: "var(--tp)" }}
+            className='px-4 py-2 text-white text-sm font-medium rounded-xl hover:opacity-90 transition-opacity'>
             Accept
           </button>
         </div>

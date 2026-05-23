@@ -24,9 +24,9 @@ const MLTExperience: React.FC<{ experiences: Experience[] }> = ({ experiences })
         <div className='flex flex-col gap-8'>
           {experiences.map((exp, i) => (
             <div key={exp.id ?? i} className='flex gap-8'>
-              {/* Dot */}
+              {/* Dot — uses var(--tp) */}
               <div className='flex-shrink-0 w-8 flex flex-col items-center'>
-                <div className='w-3 h-3 rounded-full bg-gray-900 ring-4 ring-white border border-gray-200 mt-1.5 z-10' />
+                <div className='w-3 h-3 rounded-full ring-4 ring-white border border-gray-200 mt-1.5 z-10' style={{ background: "var(--tp)" }} />
               </div>
 
               {/* Card */}

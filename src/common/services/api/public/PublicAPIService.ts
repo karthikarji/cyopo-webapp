@@ -1,7 +1,7 @@
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
-import { ApiResponse } from "@cyopo/Models/auth/auth.model";
+import { ApiResponse } from "@cyopo/Models/common/common.model";
 
 class PublicAPIService {
   async getBySlug(slug: string): Promise<Portfolio> {

@@ -39,11 +39,16 @@ const BCTContact: React.FC<Props> = ({ portfolio }) => {
     }
   };
 
-  const inputCls = [
-    "w-full bg-transparent border-b border-white/10 py-4 text-white text-sm",
-    "placeholder:text-white/20 focus:outline-none focus:border-[#e63329]",
-    "transition-colors duration-200",
-  ].join(" ");
+  // Input border-bottom uses var(--tp) on focus via onFocus/onBlur
+  const inputBaseCls =
+    "w-full bg-transparent border-b border-white/10 py-4 text-white text-sm placeholder:text-white/20 focus:outline-none transition-colors duration-200";
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.currentTarget.style.borderBottomColor = "var(--tp)";
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.currentTarget.style.borderBottomColor = "";
+  };
 
   return (
     <section id='contact' className='bg-[#0a0a0a] py-24 px-6'>
@@ -53,60 +58,69 @@ const BCTContact: React.FC<Props> = ({ portfolio }) => {
           Let's Work
         </h2>
 
+        {/* Email — hover uses var(--tp) */}
         {profile?.email && (
-          <a href={`mailto:${profile.email}`} className='text-white/30 text-sm hover:text-[#e63329] transition-colors tracking-widest'>
+          <a
+            href={`mailto:${profile.email}`}
+            className='text-white/30 text-sm tracking-widest transition-colors duration-200'
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tp)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "")}>
             {profile.email}
           </a>
         )}
 
-        {/* Contact form */}
+        {/* Form */}
         <div className='mt-16 max-w-2xl'>
           {sent ? (
             <div className='flex items-center gap-4 py-8'>
-              <div className='w-2 h-2 rounded-full bg-[#e63329]' />
+              {/* Success dot uses var(--tp) */}
+              <div className='w-2 h-2 rounded-full' style={{ background: "var(--tp)" }} />
               <p className='text-white font-bold uppercase tracking-widest text-sm'>Message received. I'll be in touch.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className='flex flex-col gap-0'>
-              <input
-                type='text'
-                placeholder='Your Name'
-                required
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className={inputCls}
-              />
-              <input
-                type='email'
-                placeholder='Email Address'
-                required
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                className={inputCls}
-              />
-              <input
-                type='text'
-                placeholder='Subject'
-                required
-                value={form.subject}
-                onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
-                className={inputCls}
-              />
+              {[
+                { field: "name", type: "text", placeholder: "Your Name" },
+                { field: "email", type: "email", placeholder: "Email Address" },
+                { field: "subject", type: "text", placeholder: "Subject" },
+              ].map(({ field, type, placeholder }) => (
+                <input
+                  key={field}
+                  type={type}
+                  placeholder={placeholder}
+                  required
+                  value={form[field as keyof typeof form]}
+                  onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  className={inputBaseCls}
+                />
+              ))}
+
               <textarea
                 placeholder='Your Message'
                 required
                 rows={4}
                 value={form.message}
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                className={[inputCls, "resize-none"].join(" ")}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                className={[inputBaseCls, "resize-none"].join(" ")}
               />
 
-              {error && <p className='text-[#e63329] text-xs mt-4 tracking-widest'>{error}</p>}
+              {/* Error — uses var(--tp) */}
+              {error && (
+                <p style={{ color: "var(--tp)" }} className='text-xs mt-4 tracking-widest'>
+                  {error}
+                </p>
+              )}
 
+              {/* Submit button — uses var(--tp) */}
               <button
                 type='submit'
                 disabled={sending}
-                className='mt-8 self-start px-8 py-4 bg-[#e63329] text-white text-xs font-bold tracking-[0.3em] uppercase hover:bg-[#c02820] transition-colors disabled:opacity-50'>
+                style={{ background: "var(--tp)" }}
+                className='mt-8 self-start px-8 py-4 text-white text-xs font-bold tracking-[0.3em] uppercase hover:opacity-90 transition-opacity disabled:opacity-50'>
                 {sending ? "Sending..." : "Send Message"}
               </button>
             </form>

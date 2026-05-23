@@ -19,9 +19,11 @@ const BCTCookieBanner: React.FC<Props> = ({ hasResponded, onAccept, onDecline })
           <button onClick={onDecline} className='px-4 py-2 text-sm text-white/30 hover:text-white/60 transition-colors'>
             Decline
           </button>
+          {/* Accept button uses var(--tp) */}
           <button
             onClick={onAccept}
-            className='px-4 py-2 bg-[#e63329] text-white text-xs font-bold tracking-widest uppercase hover:bg-[#c02820] transition-colors'>
+            style={{ background: "var(--tp)" }}
+            className='px-4 py-2 text-white text-xs font-bold tracking-widest uppercase hover:opacity-90 transition-opacity'>
             Accept
           </button>
         </div>

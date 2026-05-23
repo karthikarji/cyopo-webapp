@@ -17,17 +17,26 @@ const CATEGORY_ICONS: Record<string, string> = {
   OTHER: "category",
 };
 
-const PROFICIENCY_DOT: Record<string, string> = {
-  BEGINNER: "bg-gray-300",
-  INTERMEDIATE: "bg-blue-400",
-  ADVANCED: "bg-violet-500",
-  EXPERT: "bg-green-500",
-};
-
 interface Props {
   skills: Skill[];
   showLevels: boolean;
 }
+
+// Proficiency dot — ADVANCED uses --ts, others are fixed
+const getProficiencyStyle = (proficiency: string) => {
+  switch (proficiency) {
+    case "BEGINNER":
+      return { className: "bg-gray-300", style: {} };
+    case "INTERMEDIATE":
+      return { className: "bg-blue-400", style: {} };
+    case "ADVANCED":
+      return { className: "", style: { background: "var(--ts)" } };
+    case "EXPERT":
+      return { className: "bg-green-500", style: {} };
+    default:
+      return { className: "bg-gray-300", style: {} };
+  }
+};
 
 const MLTSkills: React.FC<Props> = ({ skills, showLevels }) => {
   const grouped = skills.reduce<Record<string, Skill[]>>((acc, skill) => {
@@ -56,16 +65,19 @@ const MLTSkills: React.FC<Props> = ({ skills, showLevels }) => {
               </div>
 
               <div className='flex flex-wrap gap-2'>
-                {items.map((skill, i) => (
-                  <span
-                    key={i}
-                    className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-700 font-medium'>
-                    {showLevels && skill.proficiency && (
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PROFICIENCY_DOT[skill.proficiency] ?? "bg-gray-300"}`} />
-                    )}
-                    {skill.name}
-                  </span>
-                ))}
+                {items.map((skill, i) => {
+                  const dot = getProficiencyStyle(skill.proficiency ?? "");
+                  return (
+                    <span
+                      key={i}
+                      className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-700 font-medium'>
+                      {showLevels && skill.proficiency && (
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot.className}`} style={dot.style} />
+                      )}
+                      {skill.name}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -74,12 +86,15 @@ const MLTSkills: React.FC<Props> = ({ skills, showLevels }) => {
         {/* Legend */}
         {showLevels && (
           <div className='flex items-center justify-center gap-6 mt-10'>
-            {Object.entries(PROFICIENCY_DOT).map(([level, cls]) => (
-              <span key={level} className='flex items-center gap-1.5 text-xs text-gray-400'>
-                <span className={`w-2 h-2 rounded-full ${cls}`} />
-                {level.charAt(0) + level.slice(1).toLowerCase()}
-              </span>
-            ))}
+            {(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"] as const).map((level) => {
+              const dot = getProficiencyStyle(level);
+              return (
+                <span key={level} className='flex items-center gap-1.5 text-xs text-gray-400'>
+                  <span className={`w-2 h-2 rounded-full ${dot.className}`} style={dot.style} />
+                  {level.charAt(0) + level.slice(1).toLowerCase()}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

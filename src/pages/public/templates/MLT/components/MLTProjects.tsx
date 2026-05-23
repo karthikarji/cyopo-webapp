@@ -23,8 +23,12 @@ const MLTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
           <div
             key={project.id ?? i}
             className='bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300 group'>
-            {/* Thumbnail or gradient placeholder */}
-            <div className='h-44 overflow-hidden bg-gradient-to-br from-violet-50 to-blue-50 flex items-center justify-center'>
+            {/* Thumbnail — placeholder uses --ts tint */}
+            <div
+              className='h-44 overflow-hidden flex items-center justify-center'
+              style={{
+                background: project.thumbnail ? undefined : "linear-gradient(to bottom right, color-mix(in srgb, var(--ts) 10%, white), white)",
+              }}>
               {project.thumbnail ? (
                 <img
                   src={project.thumbnail}
@@ -32,12 +36,13 @@ const MLTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
                   className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
                 />
               ) : (
-                <span className='material-symbols-outlined text-5xl text-violet-200'>folder_special</span>
+                <span className='material-symbols-outlined text-5xl' style={{ color: "color-mix(in srgb, var(--ts) 40%, white)" }}>
+                  folder_special
+                </span>
               )}
             </div>
 
             <div className='p-5'>
-              {/* Tech tags */}
               {project.technologies?.length > 0 && (
                 <div className='flex flex-wrap gap-1.5 mb-3'>
                   {project.technologies.slice(0, 4).map((tech, j) => (
@@ -56,14 +61,15 @@ const MLTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
                 </p>
               )}
 
-              {/* Links */}
+              {/* Links — primary button uses --tp */}
               <div className='flex items-center gap-2'>
                 {project.demoUrl && (
                   <a
                     href={project.demoUrl}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors'>
+                    style={{ background: "var(--tp)" }}
+                    className='inline-flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded-lg hover:opacity-90 transition-opacity'>
                     <ExternalLink size={11} />
                     Live Demo
                   </a>

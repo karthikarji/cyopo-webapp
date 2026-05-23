@@ -17,23 +17,17 @@ const MLTContact: React.FC<Props> = ({ portfolio }) => {
     e.preventDefault();
     setSending(true);
     setError(null);
-
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL ?? "http://localhost:8080"}/api/v1/public/portfolios/${portfolio.slug}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await response.json();
-
       if (!response.ok || data.success === false) {
-        // Show backend error message
         setError(data.error ?? "Failed to send message. Please try again.");
         return;
       }
-
-      // Success — show confirmation then reset after 4 seconds
       setSent(true);
       setTimeout(() => {
         setSent(false);
@@ -46,11 +40,14 @@ const MLTContact: React.FC<Props> = ({ portfolio }) => {
     }
   };
 
+  const inputCls =
+    "px-4 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all";
+
   return (
     <section id='contact' className='py-24 bg-white'>
       <div className='max-w-6xl mx-auto px-6'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-start'>
-          {/* Left — heading + details */}
+          {/* Left */}
           <div>
             <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-4'>
               Let's Create
@@ -93,7 +90,7 @@ const MLTContact: React.FC<Props> = ({ portfolio }) => {
             </div>
           </div>
 
-          {/* Right — contact form */}
+          {/* Right — form */}
           <div className='bg-gray-50 rounded-2xl p-8 border border-gray-100'>
             {sent ? (
               <div className='flex flex-col items-center justify-center gap-3 py-12 text-center'>
@@ -105,39 +102,24 @@ const MLTContact: React.FC<Props> = ({ portfolio }) => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-                <div className='flex flex-col gap-1.5'>
-                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Full Name</label>
-                  <input
-                    type='text'
-                    placeholder='Your Name'
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    className='px-4 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all'
-                  />
-                </div>
-                <div className='flex flex-col gap-1.5'>
-                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Email Address</label>
-                  <input
-                    type='email'
-                    placeholder='email@example.com'
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    className='px-4 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all'
-                  />
-                </div>
-                <div className='flex flex-col gap-1.5'>
-                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Subject</label>
-                  <input
-                    type='text'
-                    placeholder="What's this about?"
-                    required
-                    value={form.subject}
-                    onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
-                    className='px-4 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all'
-                  />
-                </div>
+                {[
+                  { label: "Full Name", field: "name", type: "text", placeholder: "Your Name" },
+                  { label: "Email Address", field: "email", type: "email", placeholder: "email@example.com" },
+                  { label: "Subject", field: "subject", type: "text", placeholder: "What's this about?" },
+                ].map(({ label, field, type, placeholder }) => (
+                  <div key={field} className='flex flex-col gap-1.5'>
+                    <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>{label}</label>
+                    <input
+                      type={type}
+                      placeholder={placeholder}
+                      required
+                      value={form[field as keyof typeof form]}
+                      onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                      className={inputCls}
+                    />
+                  </div>
+                ))}
+
                 <div className='flex flex-col gap-1.5'>
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Message</label>
                   <textarea
@@ -146,19 +128,23 @@ const MLTContact: React.FC<Props> = ({ portfolio }) => {
                     rows={4}
                     value={form.message}
                     onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                    className='px-4 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all resize-none'
+                    className={[inputCls, "resize-none"].join(" ")}
                   />
                 </div>
+
                 {error && (
                   <div className='flex items-start gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl'>
                     <span className='material-symbols-outlined text-red-500 text-[16px] flex-shrink-0 mt-0.5'>error</span>
                     <p className='text-sm text-red-700'>{error}</p>
                   </div>
                 )}
+
+                {/* Submit — uses --tp */}
                 <button
                   type='submit'
                   disabled={sending}
-                  className='flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50 mt-2'>
+                  style={{ background: "var(--tp)" }}
+                  className='flex items-center justify-center gap-2 px-6 py-3 text-white text-sm font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 mt-2'>
                   {sending ? (
                     <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
                   ) : (

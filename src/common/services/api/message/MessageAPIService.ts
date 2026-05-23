@@ -1,6 +1,6 @@
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
-import type { ApiResponse } from "@cyopo/Models/common/common.model";
+import { ApiResponse } from "@cyopo/Models/common/common.model.d";
 import type { PageResponse } from "@cyopo/Models/common/common.model";
 
 export interface ContactMessage {

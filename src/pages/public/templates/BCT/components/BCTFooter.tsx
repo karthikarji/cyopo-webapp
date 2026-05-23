@@ -24,14 +24,20 @@ const BCTFooter: React.FC<Props> = ({ portfolio }) => {
         <div>
           <p className='font-black uppercase text-white tracking-widest text-sm'>{profile?.name ?? "Portfolio"}</p>
           <p className='text-[10px] text-white/20 mt-0.5 tracking-widest uppercase'>
-            © {year} · Built with{" "}
-            <a href='https://cyopo.com' target='_blank' rel='noopener noreferrer' className='text-white/30 hover:text-[#e63329] transition-colors'>
+            © {year} · Built with {/* cyopo link hover uses var(--tp) */}
+            <a
+              href='https://cyopo.com'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-white/30 transition-colors duration-200'
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tp)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "")}>
               cyopo
             </a>
           </p>
         </div>
 
-        {profile?.socialMedia?.length > 0 && (
+        {profile?.socialMedia && profile.socialMedia.length > 0 && (
           <div className='flex items-center gap-4'>
             {profile.socialMedia.map((link, i) => (
               <a

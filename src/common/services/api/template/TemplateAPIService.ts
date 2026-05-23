@@ -1,7 +1,7 @@
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
 import { extractApiError } from "@cyopo/Utils/rest/ApiError.utils";
-import type { ApiResponse } from "@cyopo/Models/auth/auth.model";
+import type { ApiResponse } from "@cyopo/Models/common/common.model";
 
 class TemplateAPIServiceClass {
   async getPublicTemplates(): Promise<any[]> {

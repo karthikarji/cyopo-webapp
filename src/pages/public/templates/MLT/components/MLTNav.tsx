@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
-import { API } from "@cyopo/Constants/api/Api.constants";
 
 interface Props {
   portfolio: Portfolio;
@@ -42,9 +41,12 @@ const MLTNav: React.FC<Props> = ({ portfolio }) => {
           ))}
         </div>
 
-        {/* CTA */}
+        {/* CTA — uses --tp */}
         {portfolio.settings?.showContactInfo && (
-          <a href='#contact' className='px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition-colors'>
+          <a
+            href='#contact'
+            style={{ background: "var(--tp)" }}
+            className='px-4 py-2 text-white text-sm font-medium rounded-xl transition-opacity hover:opacity-90'>
             Hire Me
           </a>
         )}
