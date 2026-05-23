@@ -1,8 +1,9 @@
 import REST from "@cyopo/Services/rest/REST";
 import AuthenticationService from "@cyopo/Services/auth/AuthenticationService";
 import { API } from "@cyopo/Constants/api/Api.constants";
-import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@cyopo/Models/auth/auth.model";
+import type { AuthResponse, LoginRequest, RegisterRequest, User } from "@cyopo/Models/auth/auth.model";
 import { extractApiError } from "@cyopo/Utils/rest/ApiError.utils";
+import { ApiResponse } from "@cyopo/Models/common/common.model";
 
 class AuthAPIServiceClass {
   async login(payload: LoginRequest): Promise<User> {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAppSelector } from "@cyopo/Hooks/useRedux";
-import { selectIsAuthenticated } from "@cyopo/Redux/selectors/AppCommon.selector";
+import { selectIsAuthenticated, selectUser } from "@cyopo/Redux/selectors/AppCommon.selector";
 import { ROUTES } from "@cyopo/Constants/route/Route.constants";
 import AppLayout from "../layout/AppLayout";
 
@@ -32,7 +32,14 @@ const PrivateRoute: React.FC<{ children: React.ReactNode; noLayout?: boolean }> 
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <Navigate to={ROUTES.LOGIN} replace />;
+  const user = useAppSelector(selectUser);
+
+  if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} replace />;
+
+  // Non-admin users get redirected to dashboard
+  if (user?.role !== "ADMIN") return <Navigate to={ROUTES.DASHBOARD} replace />;
+
+  return <AppLayout>{children}</AppLayout>;
 };
 
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -14,10 +14,12 @@ const GitHubIcon = () => (
 
 const BCTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
   <section id='work' className='bg-[#0a0a0a]'>
-    {/* Section header */}
+    {/* Section header — label uses var(--tp) */}
     <div className='max-w-7xl mx-auto px-6 py-16 flex items-end justify-between border-b border-white/5'>
       <div>
-        <p className='text-[10px] font-bold tracking-[0.4em] uppercase text-[#e63329] mb-3'>Selected Works</p>
+        <p style={{ color: "var(--tp)" }} className='text-[10px] font-bold tracking-[0.4em] uppercase mb-3'>
+          Selected Works
+        </p>
         <h2 className='font-black uppercase text-white leading-none' style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}>
           Projects
         </h2>
@@ -26,9 +28,11 @@ const BCTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
         {projects.length} {projects.length === 1 ? "Project" : "Projects"}
       </p>
     </div>
+
+    {/* Project cards */}
     {projects.map((project, i) => (
       <div key={project.id ?? i} className='relative h-[70vh] overflow-hidden group cursor-pointer border-b border-white/5'>
-        {/* Background image or gradient */}
+        {/* Background — gradient fallback uses var(--tp) */}
         {project.thumbnail ? (
           <img
             src={project.thumbnail}
@@ -37,33 +41,29 @@ const BCTProjects: React.FC<{ projects: Project[] }> = ({ projects }) => (
           />
         ) : (
           <div
-            className={[
-              "absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500",
-              i % 3 === 0
-                ? "bg-gradient-to-br from-[#e63329] to-transparent"
-                : i % 3 === 1
-                  ? "bg-gradient-to-br from-white/10 to-transparent"
-                  : "bg-gradient-to-tr from-[#e63329]/50 to-transparent",
-            ].join(" ")}
+            className='absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500'
+            style={{
+              background:
+                i % 2 === 0 ? `linear-gradient(to bottom right, var(--tp), transparent)` : `linear-gradient(to top right, var(--tp), transparent)`,
+            }}
           />
         )}
 
         {/* Dark overlay */}
         <div className='absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent' />
 
-        {/* Content — bottom left */}
+        {/* Content */}
         <div className='absolute bottom-0 left-0 right-0 p-10'>
           <div className='flex items-end justify-between gap-4'>
             <div>
-              {/* Category + year */}
+              {/* Tech + year — uses var(--tp) */}
               {(project.technologies?.length > 0 || project.completedDate) && (
-                <p className='text-[#e63329] text-[10px] font-bold tracking-[0.3em] uppercase mb-3'>
+                <p style={{ color: "var(--tp)" }} className='text-[10px] font-bold tracking-[0.3em] uppercase mb-3'>
                   {project.technologies?.slice(0, 2).join(" / ")}
                   {project.completedDate ? ` · ${new Date(project.completedDate).getFullYear()}` : ""}
                 </p>
               )}
 
-              {/* Title */}
               <h2 className='font-black uppercase text-white leading-none' style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}>
                 {project.title}
               </h2>

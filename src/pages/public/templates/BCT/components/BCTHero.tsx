@@ -9,29 +9,31 @@ interface Props {
 const BCTHero: React.FC<Props> = ({ portfolio }) => {
   const { profile, hasResume, id } = portfolio;
   const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
-
   const nameParts = profile?.name?.split(" ") ?? ["Your", "Name"];
 
   return (
     <section className='relative min-h-screen bg-[#0a0a0a] overflow-hidden'>
-      {/* Profile photo — right half background */}
+      {/* Profile photo — right half */}
       <div className='absolute right-0 top-0 bottom-0 w-1/2'>
         {profile?.profilePhoto ? (
           <img src={profile.profilePhoto} alt={profile.name} className='w-full h-full object-cover object-top opacity-70' />
         ) : (
           <div className='w-full h-full bg-gradient-to-bl from-[#1a1a1a] to-[#0a0a0a]' />
         )}
-        {/* Gradient fade to left */}
         <div className='absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent' />
       </div>
 
       {/* Content */}
       <div className='relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 min-h-screen flex flex-col justify-end'>
         <div className='max-w-2xl'>
-          {/* Title */}
-          {profile?.title && <p className='text-xs font-bold tracking-[0.4em] uppercase text-[#e63329] mb-6'>{profile.title}</p>}
+          {/* Title — uses var(--tp) */}
+          {profile?.title && (
+            <p style={{ color: "var(--tp)" }} className='text-xs font-bold tracking-[0.4em] uppercase mb-6'>
+              {profile.title}
+            </p>
+          )}
 
-          {/* Name — massive display */}
+          {/* Name */}
           <h1 className='font-black uppercase leading-[0.9] mb-8' style={{ fontSize: "clamp(4rem, 12vw, 10rem)" }}>
             {nameParts.map((part, i) => (
               <span key={i} className='block text-white'>
@@ -72,7 +74,7 @@ const BCTHero: React.FC<Props> = ({ portfolio }) => {
         </div>
       </div>
 
-      {/* Bottom scroll hint */}
+      {/* Scroll hint */}
       <div className='absolute bottom-8 left-6 flex items-center gap-3 text-white/20'>
         <div className='w-8 h-px bg-white/20' />
         <span className='text-[10px] tracking-[0.3em] uppercase'>Scroll</span>

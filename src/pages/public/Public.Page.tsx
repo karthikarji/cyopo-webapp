@@ -31,7 +31,6 @@ const PublicPage: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [hasRecordedView, setHasRecordedView] = useState(false);
 
-  // Single instance of cookie consent — shared with banner via props
   const { isAccepted, accept, decline, hasResponded } = useCookieConsent();
 
   useEffect(() => {
@@ -76,12 +75,18 @@ const PublicPage: React.FC = () => {
 
   const TemplateComponent = TEMPLATE_MAP[portfolio.templateSlug] ?? FallbackTemplate;
 
+  // Inject template colors as CSS variables
+  // --tp = template primary color
+  // --ts = template secondary color
+  const templateVars = {
+    "--tp": portfolio.templatePrimaryColor ?? "#111827",
+    "--ts": portfolio.templateSecondaryColor ?? "#8b5cf6",
+  } as React.CSSProperties;
+
   return (
-    <TemplateComponent
-      portfolio={portfolio}
-      // Pass consent props so banner uses same state instance
-      cookieConsent={{ hasResponded, accept, decline }}
-    />
+    <div style={templateVars}>
+      <TemplateComponent portfolio={portfolio} cookieConsent={{ hasResponded, accept, decline }} />
+    </div>
   );
 };
 

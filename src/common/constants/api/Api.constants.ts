@@ -52,4 +52,7 @@ export const API = {
     STATS: (id: string) => `/api/v1/user/portfolios/${id}/messages/stats`,
     MARK_READ: (id: string) => `/api/v1/user/messages/${id}/read`,
   },
+  ADMIN: {
+    TEMPLATES: "/api/v1/admin/templates",
+  },
 } as const;

@@ -25,7 +25,6 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close menu on resize to desktop
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 768) setMenuOpen(false);
@@ -44,7 +43,7 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
           scrolled || menuOpen ? "bg-[#0a0a0a]/95 backdrop-blur-sm" : "bg-transparent",
         ].join(" ")}>
         <div className='max-w-7xl mx-auto px-6 h-14 flex items-center justify-between'>
-          {/* Logo — first name */}
+          {/* Logo */}
           <span className='text-xs font-bold tracking-[0.3em] uppercase text-white'>{portfolio.profile?.name?.split(" ")[0] ?? "Portfolio"}</span>
 
           {/* Desktop nav */}
@@ -59,12 +58,13 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
             ))}
           </div>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA — uses var(--tp) */}
           <div className='hidden md:flex items-center gap-4'>
             {portfolio.settings?.showContactInfo && (
               <a
                 href='#contact'
-                className='px-4 py-1.5 bg-[#e63329] text-white text-xs font-bold tracking-widest uppercase rounded hover:bg-[#c02820] transition-colors'>
+                style={{ background: "var(--tp)" }}
+                className='px-4 py-1.5 text-white text-xs font-bold tracking-widest uppercase rounded hover:opacity-90 transition-opacity'>
                 Hire Me
               </a>
             )}
@@ -79,7 +79,7 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
           </button>
         </div>
 
-        {/* Mobile menu — dropdown */}
+        {/* Mobile menu — uses var(--tp) for CTA */}
         {menuOpen && (
           <div className='md:hidden bg-[#0a0a0a] border-t border-white/5 px-6 py-6 flex flex-col gap-5'>
             {NAV_LINKS.map((item) => (
@@ -95,7 +95,8 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
               <a
                 href='#contact'
                 onClick={handleNavClick}
-                className='mt-2 px-4 py-3 bg-[#e63329] text-white text-xs font-bold tracking-widest uppercase text-center hover:bg-[#c02820] transition-colors'>
+                style={{ background: "var(--tp)" }}
+                className='mt-2 px-4 py-3 text-white text-xs font-bold tracking-widest uppercase text-center hover:opacity-90 transition-opacity'>
                 Hire Me
               </a>
             )}
@@ -103,7 +104,7 @@ const BCTNav: React.FC<Props> = ({ portfolio }) => {
         )}
       </nav>
 
-      {/* Backdrop — closes menu on outside click */}
+      {/* Backdrop */}
       {menuOpen && <div className='fixed inset-0 z-40 md:hidden' onClick={() => setMenuOpen(false)} />}
     </>
   );

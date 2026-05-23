@@ -125,6 +125,8 @@ export interface Portfolio {
   status: PortfolioStatus;
   templateId: string;
   templateSlug: string;
+  templatePrimaryColor?: string;
+  templateSecondaryColor?: string;
   profile: PortfolioProfile;
   skills: Skill[];
   certifications: Certification[];

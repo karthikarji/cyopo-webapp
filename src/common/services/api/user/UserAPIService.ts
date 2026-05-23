@@ -1,6 +1,6 @@
 import REST from "@cyopo/Services/rest/REST";
 import { API } from "@cyopo/Constants/api/Api.constants";
-import { ApiResponse } from "@cyopo/Models/auth/auth.model";
+import { ApiResponse } from "@cyopo/Models/common/common.model";
 
 export interface NotificationPreferences {
   emailOnMessage: boolean;
