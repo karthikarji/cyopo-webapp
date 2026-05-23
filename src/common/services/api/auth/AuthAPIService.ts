@@ -52,6 +52,22 @@ class AuthAPIServiceClass {
   isAuthenticated(): boolean {
     return AuthenticationService.isAuthenticated();
   }
+
+  async forgotPassword(email: string): Promise<void> {
+    try {
+      await REST.post(API.AUTH.FORGOT_PASSWORD, { email });
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
+
+  async resetPassword(data: { token: string; newPassword: string; confirmPassword: string }): Promise<void> {
+    try {
+      await REST.post(API.AUTH.RESET_PASSWORD, data);
+    } catch (error: any) {
+      throw new Error(extractApiError(error));
+    }
+  }
 }
 
 export const AuthAPIService = new AuthAPIServiceClass();

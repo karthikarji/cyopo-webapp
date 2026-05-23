@@ -4,9 +4,12 @@ export const API = {
     LOGIN: "/api/v1/auth/login",
     REFRESH: "/api/v1/auth/refresh",
     LOGOUT: "/api/v1/auth/logout",
+    FORGOT_PASSWORD: "/api/v1/auth/forgot-password",
+    RESET_PASSWORD: "/api/v1/auth/reset-password",
   },
   USER: {
     ME: "/api/v1/user",
+    PASSWORD: "/api/v1/user/password",
   },
   PORTFOLIO: {
     BASE: "/api/v1/user/portfolios",

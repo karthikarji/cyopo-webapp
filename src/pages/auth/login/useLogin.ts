@@ -76,7 +76,7 @@ const useLogin = () => {
   };
 
   const handleRegisterClick = () => navigate(ROUTES.REGISTER);
-  const handleForgotPassword = () => Notify.info("Password reset coming soon");
+  const handleForgotPassword = () => navigate(ROUTES.FORGOT_PASSWORD);
 
   return {
     state: {

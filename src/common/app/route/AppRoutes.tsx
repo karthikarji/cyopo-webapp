@@ -9,6 +9,8 @@ import AppLayout from "../layout/AppLayout";
 const LandingPage = React.lazy(() => import("@cyopo/Pages/landing/Landing.Page"));
 const LoginPage = React.lazy(() => import("@cyopo/Pages/auth/Login.Page"));
 const RegisterPage = React.lazy(() => import("@cyopo/Pages/auth/Register.Page"));
+const ForgotPasswordPage = React.lazy(() => import("@cyopo/Pages/auth/ForgotPassword.Page"));
+const ResetPasswordPage = React.lazy(() => import("@cyopo/Pages/auth/ResetPassword.Page"));
 const DashboardPage = React.lazy(() => import("@cyopo/Pages/dashboard/Dashboard.Page"));
 const PortfolioPage = React.lazy(() => import("@cyopo/Pages/portfolio/Portfolio.Page"));
 const WizardPage = React.lazy(() => import("@cyopo/Pages/portfolio/wizard/Wizard.Page"));
@@ -66,6 +68,22 @@ const AppRoutes: React.FC = () => {
           element={
             <PublicOnlyRoute>
               <RegisterPage />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path={ROUTES.FORGOT_PASSWORD}
+          element={
+            <PublicOnlyRoute>
+              <ForgotPasswordPage />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path={ROUTES.RESET_PASSWORD}
+          element={
+            <PublicOnlyRoute>
+              <ResetPasswordPage />
             </PublicOnlyRoute>
           }
         />
