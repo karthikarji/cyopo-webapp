@@ -21,4 +21,6 @@ export const ROUTES = {
 
   // Admin
   ADMIN_TEMPLATES: "/admin/templates",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_COUPONS: "/admin/coupons",
 } as const;

@@ -20,6 +20,8 @@ const AnalyticsPage = React.lazy(() => import("@cyopo/Pages/analytics/Analytics.
 const MessagesPage = React.lazy(() => import("@cyopo/Pages/messages/Messages.Page"));
 const SettingsPage = React.lazy(() => import("@cyopo/Pages/settings/Settings.Page"));
 const AdminPage = React.lazy(() => import("@cyopo/Pages/admin/Admin.Page"));
+const AdminUsersPage = React.lazy(() => import("@cyopo/Pages/admin/users/AdminUsers.Page"));
+const AdminCouponsPage = React.lazy(() => import("@cyopo/Pages/admin/coupons/AdminCoupons.Page"));
 const PublicPage = React.lazy(() => import("@cyopo/Pages/public/Public.Page"));
 
 // ─── Route guards ────────────────────────────────────────────────
@@ -163,6 +165,22 @@ const AppRoutes: React.FC = () => {
           element={
             <AdminRoute>
               <AdminPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path='/admin/users'
+          element={
+            <AdminRoute>
+              <AdminUsersPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path='/admin/coupons'
+          element={
+            <AdminRoute>
+              <AdminCouponsPage />
             </AdminRoute>
           }
         />
