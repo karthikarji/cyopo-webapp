@@ -54,5 +54,7 @@ export const API = {
   },
   ADMIN: {
     TEMPLATES: "/api/v1/admin/templates",
+    USERS: "/api/v1/admin/users",
+    COUPONS: "/api/v1/admin/coupons",
   },
 } as const;

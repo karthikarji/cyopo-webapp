@@ -15,7 +15,26 @@ export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   },
 ];
 
-export const SIDEBAR_ADMIN_ITEMS: SidebarNavItem[] = [{ label: "Admin", icon: "admin_panel_settings", route: "/admin/templates", adminOnly: true }];
+export const SIDEBAR_ADMIN_ITEMS: SidebarNavItem[] = [
+  {
+    label: "Templates",
+    icon: "style",
+    route: ROUTES.ADMIN_TEMPLATES,
+    adminOnly: true,
+  },
+  {
+    label: "Users",
+    icon: "group",
+    route: ROUTES.ADMIN_USERS,
+    adminOnly: true,
+  },
+  {
+    label: "Coupons",
+    icon: "local_offer",
+    route: ROUTES.ADMIN_COUPONS,
+    adminOnly: true,
+  },
+];
 
 export const SIDEBAR_WIDTH_COLLAPSED = 56;
 export const SIDEBAR_WIDTH_EXPANDED = 220;
