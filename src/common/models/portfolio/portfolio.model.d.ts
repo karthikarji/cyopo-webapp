@@ -38,6 +38,8 @@ export type SkillCategory =
 
 export type SkillProficiency = "beginner" | "intermediate" | "advanced" | "expert";
 
+export type ExperienceType = "FULL_TIME" | "PART_TIME" | "INTERNSHIP" | "FREELANCE" | "CONTRACT";
+
 export interface SocialMedia {
   platform: string;
   url: string;
@@ -57,7 +59,8 @@ export interface PortfolioProfile {
 
 export interface Skill {
   name: string;
-  category: SkillCategory;
+  category: SkillCategory | null;
+  customCategory?: string;
   proficiency: SkillProficiency;
 }
 
@@ -80,6 +83,7 @@ export interface Experience {
   description?: string;
   achievements: string[];
   technologies: string[];
+  type?: ExperienceType;
 }
 
 export interface Education {
@@ -129,6 +133,7 @@ export interface Portfolio {
   templateSecondaryColor?: string;
   profile: PortfolioProfile;
   skills: Skill[];
+  customSkillCategories?: string[];
   certifications: Certification[];
   experiences: Experience[];
   educations: Education[];
@@ -175,6 +180,7 @@ export interface UpdatePortfolioRequest {
   templateId?: string;
   profile?: Partial<PortfolioProfile>;
   skills?: Skill[];
+  customSkillCategories?: string[];
   certifications?: Certification[];
   educations?: Education[];
   experiences?: Experience[];

@@ -123,6 +123,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
       },
       skills: formData.skills.skills ?? [],
       certifications: formData.skills.certifications ?? [],
+      customSkillCategories: formData.skills.customCategories ?? [],
       experiences: formData.experience.experiences.map((exp) => ({
         ...exp,
         startDate: exp.startDate || undefined,
@@ -226,6 +227,7 @@ export const WizardProvider: React.FC<Props> = ({ children }) => {
         socialMedia: formData.profile.socialMedia,
       },
       skills: formData.skills.skills,
+      customSkillCategories: formData.skills.customCategories ?? [],
       certifications: formData.skills.certifications,
       experiences: formData.experience.experiences.map((exp) => ({
         ...exp,

@@ -10,11 +10,18 @@ interface Props {
 const WizardLayout: React.FC<Props> = ({ children }) => {
   return (
     <div className='min-h-screen bg-background flex flex-col'>
-      <WizardTopBar />
-      <WizardProgress />
-      <div className='flex-1 overflow-y-auto'>
+      {/* Sticky header — top bar + progress */}
+      <div className='sticky top-0 z-30 bg-background'>
+        <WizardTopBar />
+        <WizardProgress />
+      </div>
+
+      {/* Scrollable content */}
+      <div className='flex-1'>
         <div className='max-w-3xl mx-auto px-4 sm:px-6 py-6'>{children}</div>
       </div>
+
+      {/* Sticky footer */}
       <WizardFooter />
     </div>
   );

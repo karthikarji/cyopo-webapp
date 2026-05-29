@@ -1,4 +1,4 @@
-import type { Skill, Certification, Experience, Project, PortfolioProfile } from "@cyopo/Models/portfolio/portfolio.model";
+import type { Skill, Certification, Experience, Education, Project, PortfolioProfile } from "@cyopo/Models/portfolio/portfolio.model";
 
 export type WizardStep = "template" | "profile" | "skills" | "experience" | "projects" | "review";
 
@@ -28,6 +28,7 @@ export interface WizardProfileData {
 export interface WizardSkillsData {
   skills: Skill[];
   certifications: Certification[];
+  customCategories: string[];
 }
 
 export interface WizardExperienceData {

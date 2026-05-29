@@ -8,6 +8,7 @@ import {
   EXPERIENCE_EMPTY_TITLE,
   EXPERIENCE_EMPTY_SUB,
   EXPERIENCE_EMPTY_CTA,
+  EXPERIENCE_TYPES,
 } from "../ExperienceStep.constants";
 import TabSwitcher from "@cyopo/Components/tab-switcher/TabSwitcher";
 
@@ -34,16 +35,8 @@ const ExperienceStep: React.FC = () => {
       <div className='mb-6'>
         <TabSwitcher
           tabs={[
-            {
-              id: "experience",
-              label: "Work Experience",
-              icon: <Briefcase size={14} />,
-            },
-            {
-              id: "education",
-              label: "Education",
-              icon: <GraduationCap size={14} />,
-            },
+            { id: "experience", label: "Work Experience", icon: <Briefcase size={14} /> },
+            { id: "education", label: "Education", icon: <GraduationCap size={14} /> },
           ]}
           activeTab={state.activeTab}
           onChange={(id) => handlers.setActiveTab(id as "experience" | "education")}
@@ -53,10 +46,13 @@ const ExperienceStep: React.FC = () => {
       {/* ─── Work Experience Tab ──────────────────────────────────── */}
       {state.activeTab === "experience" && (
         <div>
-          {/* Add button */}
-          <div className='flex justify-center gap-3 mb-6'>
+          {/* Add buttons */}
+          <div className='flex flex-wrap justify-center gap-3 mb-6'>
             <Button variant='secondary' size='md' leftIcon={<Plus size={16} />} onClick={handlers.handleAddExperience}>
               Add Work Experience
+            </Button>
+            <Button variant='secondary' size='md' leftIcon={<Plus size={16} />} onClick={handlers.handleAddInternship}>
+              Add Internship
             </Button>
           </div>
 
@@ -79,6 +75,7 @@ const ExperienceStep: React.FC = () => {
             {state.experiences.map((exp, index) => {
               const isExpanded = state.expandedIndex === index;
               const title = exp.title && exp.company ? `${exp.title} at ${exp.company}` : `Experience #${index + 1}`;
+              const typeLabel = EXPERIENCE_TYPES.find((t) => t.value === (exp.type ?? "FULL_TIME"))?.label ?? "Full Time";
 
               return (
                 <div key={index} className='bg-surface border border-outline-variant/20 rounded-2xl overflow-hidden'>
@@ -86,13 +83,23 @@ const ExperienceStep: React.FC = () => {
                   <div
                     className='flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-surface-container transition-colors'
                     onClick={() => handlers.handleToggleExpand(index)}>
-                    <div className='flex items-center gap-3'>
+                    <div className='flex items-center gap-3 min-w-0'>
                       <div className='w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0'>
                         <Briefcase size={15} className='text-primary' />
                       </div>
-                      <span className='font-medium text-sm text-on-surface'>{title}</span>
+                      <span className='font-medium text-sm text-on-surface truncate'>{title}</span>
+                      {/* Type badge */}
+                      <span
+                        className={[
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 hidden sm:inline-flex",
+                          exp.type === "INTERNSHIP"
+                            ? "bg-secondary-container text-on-secondary-container"
+                            : "bg-surface-container text-on-surface-variant",
+                        ].join(" ")}>
+                        {typeLabel}
+                      </span>
                     </div>
-                    <div className='flex items-center gap-2'>
+                    <div className='flex items-center gap-2 flex-shrink-0'>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -112,6 +119,7 @@ const ExperienceStep: React.FC = () => {
                   {/* Accordion content */}
                   {isExpanded && (
                     <div className='px-5 pb-5 border-t border-outline-variant/20 pt-5 flex flex-col gap-4'>
+                      {/* Title + Company */}
                       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                         <div className='flex flex-col gap-1.5'>
                           <label className='text-xs font-medium text-on-surface-variant'>Job title</label>
@@ -135,6 +143,7 @@ const ExperienceStep: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Location */}
                       <div className='flex flex-col gap-1.5'>
                         <label className='text-xs font-medium text-on-surface-variant'>Location</label>
                         <input
@@ -146,6 +155,22 @@ const ExperienceStep: React.FC = () => {
                         />
                       </div>
 
+                      {/* Employment type */}
+                      <div className='flex flex-col gap-1.5'>
+                        <label className='text-xs font-medium text-on-surface-variant'>Employment type</label>
+                        <select
+                          value={exp.type ?? "FULL_TIME"}
+                          onChange={(e) => handlers.handleUpdateExperience(index, "type", e.target.value)}
+                          className={inputCls}>
+                          {EXPERIENCE_TYPES.map((t) => (
+                            <option key={t.value} value={t.value}>
+                              {t.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Start + End date */}
                       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                         <div className='flex flex-col gap-1.5'>
                           <label className='text-xs font-medium text-on-surface-variant'>Start date</label>
@@ -168,6 +193,7 @@ const ExperienceStep: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Current position checkbox */}
                       <label className='flex items-center gap-2 cursor-pointer w-fit'>
                         <input
                           type='checkbox'
@@ -175,15 +201,24 @@ const ExperienceStep: React.FC = () => {
                           onChange={(e) => handlers.handleUpdateExperience(index, "isCurrent", e.target.checked)}
                           className='rounded'
                         />
-                        <span className='text-sm text-on-surface'>This is my current position</span>
+                        <span className='text-sm text-on-surface'>
+                          {exp.type === "INTERNSHIP" ? "This is my current internship" : "This is my current position"}
+                        </span>
                       </label>
 
+                      {/* Description */}
                       <div className='flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-on-surface-variant'>Job description</label>
+                        <label className='text-xs font-medium text-on-surface-variant'>
+                          {exp.type === "INTERNSHIP" ? "Internship description" : "Job description"}
+                        </label>
                         <textarea
                           value={exp.description ?? ""}
                           onChange={(e) => handlers.handleUpdateExperience(index, "description", e.target.value)}
-                          placeholder='Describe your role and responsibilities...'
+                          placeholder={
+                            exp.type === "INTERNSHIP"
+                              ? "Describe your internship responsibilities and learnings..."
+                              : "Describe your role and responsibilities..."
+                          }
                           rows={3}
                           className={[inputCls, "resize-none"].join(" ")}
                         />
@@ -230,14 +265,12 @@ const ExperienceStep: React.FC = () => {
       {/* ─── Education Tab ────────────────────────────────────────── */}
       {state.activeTab === "education" && (
         <div>
-          {/* Add button */}
           <div className='flex justify-center gap-3 mb-6'>
             <Button variant='secondary' size='md' leftIcon={<Plus size={16} />} onClick={handlers.handleAddEducation}>
               Add Education
             </Button>
           </div>
 
-          {/* Empty state */}
           {state.educations.length === 0 && (
             <div className='flex flex-col items-center justify-center py-16 text-center bg-surface border border-outline-variant/20 rounded-2xl'>
               <div className='w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center mb-4'>
@@ -251,11 +284,9 @@ const ExperienceStep: React.FC = () => {
             </div>
           )}
 
-          {/* Education cards */}
           <div className='flex flex-col gap-4'>
             {state.educations.map((edu, index) => (
               <div key={index} className='bg-surface border border-outline-variant/20 rounded-2xl p-5'>
-                {/* Card header */}
                 <div className='flex items-center justify-between mb-4'>
                   <div className='flex items-center gap-3'>
                     <div className='w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0'>

@@ -51,6 +51,8 @@ export const SKILL_CATEGORIES = [
   { label: "Logistics", value: "LOGISTICS" },
 
   { label: "Other", value: "OTHER" },
+
+  { label: "+ Custom Category", value: "CUSTOM" },
 ];
 
 export const SKILL_PROFICIENCIES = [
@@ -63,4 +65,12 @@ export const SKILL_PROFICIENCIES = [
 export const SKILL_TABS = [
   { label: "Technical Skills", value: "skills" },
   { label: "Certifications", value: "certifications" },
+];
+
+export const EXPERIENCE_TYPES = [
+  { label: "Full Time", value: "FULL_TIME" },
+  { label: "Part Time", value: "PART_TIME" },
+  { label: "Internship", value: "INTERNSHIP" },
+  { label: "Freelance", value: "FREELANCE" },
+  { label: "Contract", value: "CONTRACT" },
 ];

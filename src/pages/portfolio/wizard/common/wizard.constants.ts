@@ -30,6 +30,7 @@ export const WIZARD_INITIAL_FORM_DATA = {
   skills: {
     skills: [],
     certifications: [],
+    customCategories: [],
   },
   experience: {
     experiences: [],

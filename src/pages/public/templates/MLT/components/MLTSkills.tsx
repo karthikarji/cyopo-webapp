@@ -17,12 +17,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   OTHER: "category",
 };
 
-interface Props {
-  skills: Skill[];
-  showLevels: boolean;
-}
-
-// Proficiency dot — ADVANCED uses --ts, others are fixed
 const getProficiencyStyle = (proficiency: string) => {
   switch (proficiency) {
     case "BEGINNER":
@@ -38,13 +32,25 @@ const getProficiencyStyle = (proficiency: string) => {
   }
 };
 
-const MLTSkills: React.FC<Props> = ({ skills, showLevels }) => {
+interface Props {
+  skills: Skill[];
+  showLevels: boolean;
+  customSkillCategories?: string[];
+}
+
+const MLTSkills: React.FC<Props> = ({ skills, showLevels, customSkillCategories = [] }) => {
+  // Group by category — custom skills use their customCategory as key
   const grouped = skills.reduce<Record<string, Skill[]>>((acc, skill) => {
-    const cat = skill.category ?? "OTHER";
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(skill);
+    const key = skill.customCategory ? skill.customCategory : (skill.category ?? "OTHER");
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(skill);
     return acc;
   }, {});
+
+  // Show standard categories first, then custom categories
+  const standardKeys = Object.keys(grouped).filter((k) => !customSkillCategories.includes(k));
+  const customKeys = Object.keys(grouped).filter((k) => customSkillCategories.includes(k));
+  const orderedKeys = [...standardKeys, ...customKeys];
 
   return (
     <section id='skills' className='py-24 bg-gray-50'>
@@ -55,32 +61,38 @@ const MLTSkills: React.FC<Props> = ({ skills, showLevels }) => {
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {Object.entries(grouped).map(([category, items]) => (
-            <div key={category} className='bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-all duration-200'>
-              <div className='flex items-center gap-3 mb-4'>
-                <div className='w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center'>
-                  <span className='material-symbols-outlined text-gray-500 text-[18px]'>{CATEGORY_ICONS[category] ?? "category"}</span>
-                </div>
-                <h3 className='font-semibold text-gray-900 text-sm'>{category.replace(/_/g, " ")}</h3>
-              </div>
-
-              <div className='flex flex-wrap gap-2'>
-                {items.map((skill, i) => {
-                  const dot = getProficiencyStyle(skill.proficiency ?? "");
-                  return (
-                    <span
-                      key={i}
-                      className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-700 font-medium'>
-                      {showLevels && skill.proficiency && (
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot.className}`} style={dot.style} />
-                      )}
-                      {skill.name}
+          {orderedKeys.map((category) => {
+            const items = grouped[category];
+            const isCustom = customSkillCategories.includes(category);
+            return (
+              <div key={category} className='bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-all duration-200'>
+                <div className='flex items-center gap-3 mb-4'>
+                  <div className='w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center'>
+                    <span className='material-symbols-outlined text-gray-500 text-[18px]'>
+                      {isCustom ? "label" : (CATEGORY_ICONS[category] ?? "category")}
                     </span>
-                  );
-                })}
+                  </div>
+                  <h3 className='font-semibold text-gray-900 text-sm'>{category.replace(/_/g, " ")}</h3>
+                </div>
+
+                <div className='flex flex-wrap gap-2'>
+                  {items.map((skill, i) => {
+                    const dot = getProficiencyStyle(skill.proficiency ?? "");
+                    return (
+                      <span
+                        key={i}
+                        className='inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-700 font-medium'>
+                        {showLevels && skill.proficiency && (
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot.className}`} style={dot.style} />
+                        )}
+                        {skill.name}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Legend */}

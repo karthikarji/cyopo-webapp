@@ -12,6 +12,7 @@ const emptyExperience = (): Experience => ({
   description: "",
   achievements: [],
   technologies: [],
+  type: "FULL_TIME",
 });
 
 const useExperienceStep = () => {
@@ -66,6 +67,11 @@ const useExperienceStep = () => {
     });
     setExpandedIndex(null);
   };
+  const handleAddInternship = () => {
+    const updated = [...experiences, { ...emptyExperience(), type: "INTERNSHIP" as const }];
+    updateExperience({ experiences: updated });
+    setExpandedIndex(updated.length - 1);
+  };
 
   const handleUpdateExperience = (index: number, field: string, value: any) => {
     const updated = [...experiences];
@@ -118,6 +124,7 @@ const useExperienceStep = () => {
       handleAddAchievement,
       handleUpdateAchievement,
       handleRemoveAchievement,
+      handleAddInternship,
       handleToggleExpand,
       handleAddEducation,
       handleUpdateEducation,

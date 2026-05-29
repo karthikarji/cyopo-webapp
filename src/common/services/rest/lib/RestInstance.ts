@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import StorageService from "@cyopo/Services/storage/StorageService";
 import { STORAGE_KEYS } from "@cyopo/Constants/app/App.constants";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://192.168.29.24:8080";
 
 let isRefreshing = false;
 let failedQueue: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];

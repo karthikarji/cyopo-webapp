@@ -1,5 +1,4 @@
 import React from "react";
-import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
 import BCTNav from "./components/BCTNav";
 import BCTHero from "./components/BCTHero";
 import BCTQuote from "./components/BCTQuote";
@@ -24,7 +23,13 @@ const BCT: React.FC<PublicTemplateProps> = ({ portfolio, cookieConsent }) => {
 
       {portfolio.projects?.length > 0 && <BCTProjects projects={portfolio.projects} />}
 
-      {portfolio.skills?.length > 0 && <BCTSkills skills={portfolio.skills} showLevels={settings?.showSkillLevels ?? true} />}
+      {portfolio.skills?.length > 0 && (
+        <BCTSkills
+          skills={portfolio.skills}
+          customSkillCategories={portfolio.customSkillCategories ?? []}
+          showLevels={settings?.showSkillLevels ?? true}
+        />
+      )}
 
       {portfolio.experiences?.length > 0 && <BCTExperience experiences={portfolio.experiences} />}
 
