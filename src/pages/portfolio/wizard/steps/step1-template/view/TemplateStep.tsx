@@ -1,6 +1,7 @@
 import React from "react";
 import { Check } from "lucide-react";
 import useTemplateStep from "../controller/useTemplateStep";
+import UpgradePromptModal from "@cyopo/Components/upgrade/UpgradePromptModal";
 import { TEMPLATE_STEP_TITLE, TEMPLATE_STEP_SUBTITLE, TEMPLATE_FILTERS } from "../TemplateStep.constants";
 import type { WizardTemplate } from "../TemplateStep.model.d";
 
@@ -124,6 +125,18 @@ const TemplateStep: React.FC = () => {
             to continue
           </span>
         </div>
+      )}
+
+      {/* ── Upgrade prompt modal ─────────────────────────────────── */}
+      {state.upgradePrompt && (
+        <UpgradePromptModal
+          title={state.upgradePrompt.title}
+          description={state.upgradePrompt.description}
+          feature={state.upgradePrompt.feature}
+          currentPlan={state.upgradePrompt.currentPlan}
+          onUpgrade={handlers.handleUpgrade}
+          onClose={handlers.hideUpgradePrompt}
+        />
       )}
     </div>
   );

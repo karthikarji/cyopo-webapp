@@ -17,7 +17,6 @@ const Sidebar: React.FC = () => {
         "hidden md:flex",
       ].join(" ")}>
       {/* Logo */}
-      {/* Logo */}
       <div className='px-3 mb-8 flex items-center gap-3 flex-shrink-0'>
         <div
           className={[
@@ -69,8 +68,38 @@ const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      {/* Bottom spacer for top bar alignment */}
-      <div className='px-2 mt-auto'>
+      {/* ─── Plan badge + upgrade ──────────────────────────────── */}
+      <div className='px-2 mt-2 mb-2'>
+        <button
+          onClick={handlers.handleUpgrade}
+          title={state.isFreePlan ? "Upgrade plan" : state.planBadge.label}
+          className={["flex items-center h-12 rounded-xl w-full transition-all duration-200", "active:scale-95 hover:bg-surface-container"].join(
+            " ",
+          )}>
+          {/* Plan icon */}
+          <div className='min-w-[40px] flex items-center justify-center flex-shrink-0'>
+            <span className={["text-[11px] font-black px-1.5 py-0.5 rounded-md", state.planBadge.style].join(" ")}>
+              {state.planBadge.label[0]} {/* First letter — F / P */}
+            </span>
+          </div>
+
+          {/* Expanded label */}
+          <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between flex-1 pr-2'>
+            <div className='flex flex-col items-start'>
+              <span className={["text-[11px] font-bold px-2 py-0.5 rounded-full", state.planBadge.style].join(" ")}>{state.planBadge.label}</span>
+              {state.isFreePlan && <span className='text-[10px] text-on-surface-variant mt-0.5 ml-0.5'>Upgrade</span>}
+            </div>
+            {state.isFreePlan && (
+              <span className='material-symbols-outlined text-primary text-[16px]' style={{ fontVariationSettings: "'FILL' 1" }}>
+                arrow_forward
+              </span>
+            )}
+          </div>
+        </button>
+      </div>
+
+      {/* Expand hint */}
+      <div className='px-2'>
         <div className='h-px bg-outline-variant/20 mb-3' />
         <div className='flex items-center h-10 rounded-xl px-1'>
           <div className='min-w-[40px] flex items-center justify-center'>

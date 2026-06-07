@@ -1,5 +1,5 @@
 export type UserRole = "USER" | "ADMIN";
-export type UserPlan = "FREE" | "PREMIUM";
+export type UserPlan = "FREE" | "PREMIUM" | "PRO";
 export type UserStatus = "ACTIVE" | "BANNED" | "SUSPENDED";
 
 export interface User {

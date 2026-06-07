@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus } from "lucide-react";
+import { Plus, Zap } from "lucide-react";
 import Button from "@cyopo/Components/button/Button";
 import UserPersona from "./persona/UserPersona";
 import useTopBar from "./useTopBar";
@@ -26,7 +26,23 @@ const TopBar: React.FC = () => {
       </div>
 
       {/* Right actions */}
-      <div className='flex items-center gap-3'>
+      <div className='flex items-center gap-2 sm:gap-3'>
+        {/* Upgrade chip — only for FREE users */}
+        {state.isFreePlan && (
+          <button
+            onClick={handlers.handleUpgrade}
+            className={[
+              "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full",
+              "text-xs font-bold transition-all duration-200",
+              "bg-primary-container text-on-primary-container",
+              "hover:bg-primary hover:text-on-primary",
+              "border border-primary/20",
+            ].join(" ")}>
+            <Zap size={12} />
+            Upgrade
+          </button>
+        )}
+
         {/* Theme toggle */}
         <button
           onClick={handlers.handleThemeToggle}
@@ -37,7 +53,8 @@ const TopBar: React.FC = () => {
 
         {/* New portfolio button */}
         <Button variant='primary' size='sm' leftIcon={<Plus size={15} />} onClick={handlers.handleNewPortfolio} className='shadow-sm'>
-          {TOPBAR_NEW_PORTFOLIO_LABEL}
+          <span className='hidden sm:inline'>{TOPBAR_NEW_PORTFOLIO_LABEL}</span>
+          <span className='sm:hidden'>New</span>
         </Button>
 
         {/* User persona */}

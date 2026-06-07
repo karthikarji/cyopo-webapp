@@ -35,10 +35,7 @@ const useReviewStep = () => {
         setIsCheckingSlug(true);
         // Pass portfolioId as excludeId — backend excludes this portfolio
         // from the uniqueness check so its own slug shows as available
-        const available = await PortfolioAPIService.validateSlug(
-          review.slug,
-          portfolioId ?? undefined, // ← pass the ID
-        );
+        const available = await PortfolioAPIService.validateSlug(review.slug, portfolioId ?? undefined);
         setSlugAvailable(available);
       } catch {
         setSlugAvailable(null);

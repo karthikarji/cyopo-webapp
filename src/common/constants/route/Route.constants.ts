@@ -1,15 +1,15 @@
 export const ROUTES = {
-  // Public
+  // ─── Public ───────────────────────────────────────────────────────
   LANDING: "/",
   LOGIN: "/login",
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
 
-  // Portfolio public view
+  // ─── Portfolio public view ────────────────────────────────────────
   PUBLIC_PORTFOLIO: "/p/:slug",
 
-  // Authenticated
+  // ─── Authenticated ────────────────────────────────────────────────
   DASHBOARD: "/dashboard",
   PORTFOLIOS: "/portfolios",
   PORTFOLIO_NEW: "/portfolios/new",
@@ -19,8 +19,15 @@ export const ROUTES = {
   SETTINGS: "/settings",
   MESSAGES: "/messages",
 
-  // Admin
+  // ─── Billing ──────────────────────────────────────────────────────
+  CHECKOUT: "/checkout",
+  BILLING_SUCCESS: "/billing/success",
+  BILLING: "/settings?tab=billing",
+  PRICING: "/pricing",
+
+  // ─── Admin ────────────────────────────────────────────────────────
   ADMIN_TEMPLATES: "/admin/templates",
   ADMIN_USERS: "/admin/users",
   ADMIN_COUPONS: "/admin/coupons",
+  ADMIN_BILLING: "/admin/billing",
 } as const;
