@@ -4,13 +4,13 @@ import { selectPortfolios } from "@cyopo/Pages/portfolio/common/redux/selectors/
 import { setPortfolios } from "@cyopo/Pages/portfolio/common/redux/actions/Portfolio.actions";
 import { PortfolioAPIService } from "@cyopo/Services/api/portfolio/PortfolioAPIService";
 import MessageAPIService from "@cyopo/Services/api/message/MessageAPIService";
-import type { ContactMessage, ContactStats } from "@cyopo/Services/api/message/MessageAPIService";
+import type { ContactMessage } from "@cyopo/Services/api/message/MessageAPIService";
 
 export interface PortfolioMessages {
   portfolioId: string;
   portfolioName: string;
   portfolioSlug: string;
-  stats: ContactStats;
+  stats: { total: number; unread: number };
   messages: ContactMessage[];
   isLoading: boolean;
   isExpanded: boolean;
@@ -35,7 +35,7 @@ const useMessagesPage = () => {
 
   const totalUnread = data.reduce((sum, p) => sum + p.stats.unread, 0);
 
-  // Fetch portfolios if Redux state is empty (direct page load)
+  // ─── Step 1: Ensure portfolios are in Redux ────────────────────────
   useEffect(() => {
     if (portfolios.length > 0) return;
     const load = async () => {
@@ -52,49 +52,46 @@ const useMessagesPage = () => {
     load();
   }, []);
 
-  // Load message stats for all portfolios when portfolio list is ready
+  // ─── Step 2: Single call to get ALL portfolio stats ────────────────
+  //
+  // Previously: N calls (one per portfolio) for stats on page load
+  // Now: 1 call to /api/v1/user/messages/stats-all
+  // Backend includes portfolioId, portfolioName, portfolioSlug in response
+  // so we don't even need Redux portfolios to build the rows
+  //
   useEffect(() => {
-    if (portfolios.length === 0) return;
-    const init = async () => {
-      const rows = await Promise.all(
-        portfolios.map(async (p) => {
-          try {
-            const stats = await MessageAPIService.getStats(p.id);
-            return {
-              portfolioId: p.id,
-              portfolioName: p.name,
-              portfolioSlug: p.slug,
-              stats,
-              messages: [],
-              isLoading: false,
-              isExpanded: false,
-            };
-          } catch {
-            return {
-              portfolioId: p.id,
-              portfolioName: p.name,
-              portfolioSlug: p.slug,
-              stats: { total: 0, unread: 0 },
-              messages: [],
-              isLoading: false,
-              isExpanded: false,
-            };
-          }
-        }),
-      );
-      setData(rows);
-    };
-    init();
-  }, [portfolios]);
+    const load = async () => {
+      try {
+        setIsLoadingPortfolios(true);
+        const allStats = await MessageAPIService.getAllStats();
 
+        setData(
+          allStats.map((s) => ({
+            portfolioId: s.portfolioId,
+            portfolioName: s.portfolioName,
+            portfolioSlug: s.portfolioSlug,
+            stats: { total: s.total, unread: s.unread },
+            messages: [],
+            isLoading: false,
+            isExpanded: false,
+          })),
+        );
+      } catch {
+        // Silently fail — show empty state
+      } finally {
+        setIsLoadingPortfolios(false);
+      }
+    };
+    load();
+  }, []); // ← runs once on mount, no portfolio dependency needed
+
+  // ─── Expand portfolio — lazy load messages ─────────────────────────
   const handleExpand = async (portfolioId: string) => {
-    // Capture state BEFORE toggling
     const row = data.find((p) => p.portfolioId === portfolioId);
 
-    // Toggle expanded
     setData((prev) => prev.map((p) => (p.portfolioId === portfolioId ? { ...p, isExpanded: !p.isExpanded } : p)));
 
-    // Only load messages if currently collapsed and not yet loaded
+    // Only load if expanding and not yet loaded
     if (!row || row.isExpanded || row.messages.length > 0) return;
 
     setData((prev) => prev.map((p) => (p.portfolioId === portfolioId ? { ...p, isLoading: true } : p)));
@@ -107,9 +104,11 @@ const useMessagesPage = () => {
     }
   };
 
+  // ─── Open message — mark as read ──────────────────────────────────
   const handleOpenMessage = async (message: ContactMessage) => {
     setSelectedMessage(message);
     if (message.status !== "UNREAD") return;
+
     try {
       await MessageAPIService.markAsRead(message.id);
       setData((prev) =>

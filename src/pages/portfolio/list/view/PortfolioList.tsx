@@ -2,6 +2,7 @@ import React from "react";
 import { Plus } from "lucide-react";
 import PortfolioCard from "./PortfolioCard";
 import PortfolioEmptyState from "./PortfolioEmptyState";
+import UpgradePromptModal from "@cyopo/Components/upgrade/UpgradePromptModal";
 import usePortfolioList from "../controller/usePortfolioList";
 
 const PortfolioCardSkeleton: React.FC = () => (
@@ -69,32 +70,42 @@ const PortfolioList: React.FC = () => {
 
       {/* Delete confirm dialog */}
       {state.deleteTargetId && (
-        <>
-          <div className='fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4'>
-            <div className='bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6'>
-              <div className='w-12 h-12 rounded-xl bg-error-container flex items-center justify-center mb-4'>
-                <span className='material-symbols-outlined text-error text-2xl'>delete</span>
-              </div>
-              <h3 className='font-headline font-bold text-on-surface text-lg mb-2'>Delete portfolio?</h3>
-              <p className='text-sm text-on-surface-variant leading-relaxed mb-6'>
-                This will permanently delete this portfolio and all its content. This action cannot be undone.
-              </p>
-              <div className='flex gap-3'>
-                <button
-                  onClick={handlers.handleDeleteCancel}
-                  className='flex-1 px-4 py-2.5 rounded-xl border border-outline-variant text-sm font-medium text-on-surface hover:bg-surface-container transition-colors'>
-                  Cancel
-                </button>
-                <button
-                  onClick={handlers.handleDeleteConfirm}
-                  disabled={state.isDeleting}
-                  className='flex-1 px-4 py-2.5 rounded-xl bg-error text-on-error text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50'>
-                  {state.isDeleting ? "Deleting..." : "Delete"}
-                </button>
-              </div>
+        <div className='fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4'>
+          <div className='bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6'>
+            <div className='w-12 h-12 rounded-xl bg-error-container flex items-center justify-center mb-4'>
+              <span className='material-symbols-outlined text-error text-2xl'>delete</span>
+            </div>
+            <h3 className='font-headline font-bold text-on-surface text-lg mb-2'>Delete portfolio?</h3>
+            <p className='text-sm text-on-surface-variant leading-relaxed mb-6'>
+              This will permanently delete this portfolio and all its content. This action cannot be undone.
+            </p>
+            <div className='flex gap-3'>
+              <button
+                onClick={handlers.handleDeleteCancel}
+                className='flex-1 px-4 py-2.5 rounded-xl border border-outline-variant text-sm font-medium text-on-surface hover:bg-surface-container transition-colors'>
+                Cancel
+              </button>
+              <button
+                onClick={handlers.handleDeleteConfirm}
+                disabled={state.isDeleting}
+                className='flex-1 px-4 py-2.5 rounded-xl bg-error text-on-error text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50'>
+                {state.isDeleting ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
-        </>
+        </div>
+      )}
+
+      {/* ── Upgrade prompt modal ─────────────────────────────────── */}
+      {state.upgradePrompt && (
+        <UpgradePromptModal
+          title={state.upgradePrompt.title}
+          description={state.upgradePrompt.description}
+          feature={state.upgradePrompt.feature}
+          currentPlan={state.upgradePrompt.currentPlan}
+          onUpgrade={handlers.handleUpgrade}
+          onClose={handlers.hideUpgradePrompt}
+        />
       )}
     </div>
   );

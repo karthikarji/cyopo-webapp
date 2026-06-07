@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@cyopo/Hooks/useRedux";
+import { selectUser } from "@cyopo/Redux/selectors/AppCommon.selector";
 import { selectPortfolios, selectPortfolioLoading, selectPortfolioFilters } from "@cyopo/Pages/portfolio/common/redux/selectors/Portfolio.selector";
 import {
   setPortfolios,
@@ -10,14 +11,17 @@ import {
   updatePortfolio,
 } from "@cyopo/Pages/portfolio/common/redux/actions/Portfolio.actions";
 import { PortfolioAPIService } from "@cyopo/Services/api/portfolio/PortfolioAPIService";
+import { BillingAPIService } from "@cyopo/Services/api/billing/BillingAPIService";
 import Notify from "@cyopo/Services/notification/Notify";
 import Spinner from "@cyopo/Services/spinner/Spinner";
 import { ROUTES } from "@cyopo/Constants/route/Route.constants";
+import useUpgradePrompt from "@cyopo/Hooks/useUpgradePrompt";
 import type { Portfolio } from "@cyopo/Models/portfolio/portfolio.model";
 
 const usePortfolioList = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const user = useAppSelector(selectUser);
   const portfolios = useAppSelector(selectPortfolios) ?? [];
   const isLoading = useAppSelector(selectPortfolioLoading);
   const filters = useAppSelector(selectPortfolioFilters);
@@ -26,7 +30,10 @@ const usePortfolioList = () => {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch portfolios when filters change
+  // Upgrade prompt
+  const { upgradePrompt, showUpgradePrompt, hideUpgradePrompt, handleUpgrade } = useUpgradePrompt();
+
+  // ─── Fetch portfolios ──────────────────────────────────────────────
   useEffect(() => {
     const fetch = async () => {
       try {
@@ -50,52 +57,89 @@ const usePortfolioList = () => {
         Notify.error(err?.message ?? "Failed to load portfolios");
       }
     };
-
     fetch();
   }, [dispatch, filters.status, filters.search, filters.page]);
 
-  // Filter locally for search
-  const filteredPortfolios = portfolios.filter((p) => {
-    const matchesSearch =
-      !filters.search || p.name.toLowerCase().includes(filters.search.toLowerCase()) || p.slug.toLowerCase().includes(filters.search.toLowerCase());
-    return matchesSearch;
-  });
-
-  const handleEdit = (id: string) => navigate(`/portfolios/${id}/edit`);
-  const handleViewLive = (slug: string) => window.open(`/p/${slug}`, "_blank");
-  const handleMenuOpen = (id: string) => setMenuOpenId(id);
-  const handleMenuClose = () => setMenuOpenId(null);
-  const handleCreateNew = () => navigate(ROUTES.PORTFOLIO_NEW);
-
-  const handleDuplicate = async (id: string) => {
+  // ─── Check gates before creating ──────────────────────────────────
+  const handleCreateNew = useCallback(async () => {
     try {
-      const duplicated = await Spinner.on(PortfolioAPIService.duplicatePortfolio(id));
-      dispatch(
-        setPortfolios({
-          portfolios: [duplicated, ...portfolios],
-          total: portfolios.length + 1,
-          page: 1,
-          totalPages: 1,
-        }),
-      );
-      Notify.success("Portfolio duplicated successfully");
-    } catch (err: any) {
-      Notify.error(err?.message ?? "Failed to duplicate portfolio");
+      const gates = await BillingAPIService.getFeatureGates();
+      if (!gates.canCreatePortfolio) {
+        showUpgradePrompt({
+          title: "Portfolio limit reached",
+          description: `Your ${gates.currentPlan} plan allows up to ${gates.portfoliosAllowed} portfolio(s). Upgrade to create more.`,
+          feature: "PORTFOLIO_LIMIT",
+          currentPlan: gates.currentPlan,
+        });
+        return;
+      }
+      navigate(ROUTES.PORTFOLIO_NEW);
+    } catch {
+      // If gate check fails — let backend handle it
+      navigate(ROUTES.PORTFOLIO_NEW);
     }
-    setMenuOpenId(null);
-  };
+  }, [navigate, showUpgradePrompt]);
 
-  const handleStatusChange = async (id: string, status: string) => {
-    try {
-      const updated = await Spinner.on(PortfolioAPIService.updateStatus(id, status));
-      dispatch(updatePortfolio(updated));
-      Notify.success(`Portfolio ${status} successfully`);
-    } catch (err: any) {
-      Notify.error(err?.message ?? "Failed to update status");
-    }
-    setMenuOpenId(null);
-  };
+  // ─── Check gates before duplicating ───────────────────────────────
+  const handleDuplicate = useCallback(
+    async (id: string) => {
+      try {
+        const gates = await BillingAPIService.getFeatureGates();
+        if (!gates.canCreatePortfolio) {
+          setMenuOpenId(null);
+          showUpgradePrompt({
+            title: "Portfolio limit reached",
+            description: `Your ${gates.currentPlan} plan allows up to ${gates.portfoliosAllowed} portfolio(s). Upgrade to duplicate.`,
+            feature: "PORTFOLIO_LIMIT",
+            currentPlan: gates.currentPlan,
+          });
+          return;
+        }
 
+        const duplicated = await Spinner.on(PortfolioAPIService.duplicatePortfolio(id));
+        dispatch(
+          setPortfolios({
+            portfolios: [duplicated, ...portfolios],
+            total: portfolios.length + 1,
+            page: 1,
+            totalPages: 1,
+          }),
+        );
+        Notify.success("Portfolio duplicated successfully");
+      } catch (err: any) {
+        Notify.error(err?.message ?? "Failed to duplicate portfolio");
+      }
+      setMenuOpenId(null);
+    },
+    [dispatch, portfolios, showUpgradePrompt],
+  );
+
+  // ─── Status change ─────────────────────────────────────────────────
+  const handleStatusChange = useCallback(
+    async (id: string, status: string) => {
+      try {
+        const updated = await Spinner.on(PortfolioAPIService.updateStatus(id, status));
+        dispatch(updatePortfolio(updated));
+        Notify.success(`Portfolio ${status} successfully`);
+      } catch (err: any) {
+        // Backend returns 402 with featureCode if gate blocked
+        if (err?.response?.status === 402) {
+          showUpgradePrompt({
+            title: "Upgrade required",
+            description: err?.response?.data?.error ?? "Upgrade to publish more portfolios.",
+            feature: "PORTFOLIO_LIMIT",
+            currentPlan: user?.plan ?? "FREE",
+          });
+        } else {
+          Notify.error(err?.message ?? "Failed to update status");
+        }
+      }
+      setMenuOpenId(null);
+    },
+    [dispatch, showUpgradePrompt, user],
+  );
+
+  // ─── Delete ────────────────────────────────────────────────────────
   const handleDeleteClick = (id: string) => {
     setDeleteTargetId(id);
     setMenuOpenId(null);
@@ -117,6 +161,11 @@ const usePortfolioList = () => {
   };
 
   const handleDeleteCancel = () => setDeleteTargetId(null);
+
+  const handleEdit = (id: string) => navigate(`/portfolios/${id}/edit`);
+  const handleViewLive = (slug: string) => window.open(`/p/${slug}`, "_blank");
+  const handleMenuOpen = (id: string) => setMenuOpenId(id);
+  const handleMenuClose = () => setMenuOpenId(null);
 
   const handleAction = (action: string, portfolio: Portfolio) => {
     switch (action) {
@@ -141,6 +190,13 @@ const usePortfolioList = () => {
     }
   };
 
+  // Filter locally for search
+  const filteredPortfolios = portfolios.filter((p) => {
+    const matchesSearch =
+      !filters.search || p.name.toLowerCase().includes(filters.search.toLowerCase()) || p.slug.toLowerCase().includes(filters.search.toLowerCase());
+    return matchesSearch;
+  });
+
   return {
     state: {
       portfolios: filteredPortfolios,
@@ -150,6 +206,7 @@ const usePortfolioList = () => {
       isDeleting,
       isEmpty: filteredPortfolios.length === 0 && !isLoading,
       isFiltered: !!(filters.search || filters.status !== "all"),
+      upgradePrompt,
     },
     handlers: {
       handleEdit,
@@ -159,6 +216,8 @@ const usePortfolioList = () => {
       handleAction,
       handleDeleteConfirm,
       handleDeleteCancel,
+      hideUpgradePrompt,
+      handleUpgrade,
     },
   };
 };

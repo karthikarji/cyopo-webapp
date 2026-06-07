@@ -1,3 +1,9 @@
+import type { BillingCycle } from "@cyopo/Models/billing/billing.model";
+
+export interface PricingLocalState {
+  billingCycle: BillingCycle;
+}
+
 export interface PricingFeature {
   text: string;
 }

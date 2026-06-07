@@ -5,12 +5,17 @@ import { selectIsAuthenticated, selectUser } from "@cyopo/Redux/selectors/AppCom
 import { ROUTES } from "@cyopo/Constants/route/Route.constants";
 import AppLayout from "../layout/AppLayout";
 
-// ─── Lazy loaded pages ───────────────────────────────────────────
+// ─── Lazy loaded pages ────────────────────────────────────────────
+
+// Public
 const LandingPage = React.lazy(() => import("@cyopo/Pages/landing/Landing.Page"));
 const LoginPage = React.lazy(() => import("@cyopo/Pages/auth/Login.Page"));
 const RegisterPage = React.lazy(() => import("@cyopo/Pages/auth/Register.Page"));
 const ForgotPasswordPage = React.lazy(() => import("@cyopo/Pages/auth/ForgotPassword.Page"));
 const ResetPasswordPage = React.lazy(() => import("@cyopo/Pages/auth/ResetPassword.Page"));
+const PublicPage = React.lazy(() => import("@cyopo/Pages/public/Public.Page"));
+
+// Authenticated
 const DashboardPage = React.lazy(() => import("@cyopo/Pages/dashboard/Dashboard.Page"));
 const PortfolioPage = React.lazy(() => import("@cyopo/Pages/portfolio/Portfolio.Page"));
 const WizardPage = React.lazy(() => import("@cyopo/Pages/portfolio/wizard/Wizard.Page"));
@@ -19,37 +24,47 @@ const TemplatesPage = React.lazy(() => import("@cyopo/Pages/templates/TemplateGa
 const AnalyticsPage = React.lazy(() => import("@cyopo/Pages/analytics/Analytics.Page"));
 const MessagesPage = React.lazy(() => import("@cyopo/Pages/messages/Messages.Page"));
 const SettingsPage = React.lazy(() => import("@cyopo/Pages/settings/Settings.Page"));
+
+// Billing
+const CheckoutPage = React.lazy(() => import("@cyopo/Pages/checkout/Checkout.Page"));
+const BillingSuccessPage = React.lazy(() => import("@cyopo/Pages/billing-success/BillingSuccess.Page"));
+const PricingPage = React.lazy(() => import("@cyopo/Pages/pricing/Pricing.Page"));
+
+// Admin
 const AdminPage = React.lazy(() => import("@cyopo/Pages/admin/Admin.Page"));
 const AdminUsersPage = React.lazy(() => import("@cyopo/Pages/admin/users/AdminUsers.Page"));
 const AdminCouponsPage = React.lazy(() => import("@cyopo/Pages/admin/coupons/AdminCoupons.Page"));
-const PublicPage = React.lazy(() => import("@cyopo/Pages/public/Public.Page"));
+const AdminBillingPage = React.lazy(() => import("@cyopo/Pages/admin/billing/AdminBilling.Page"));
 
-// ─── Route guards ────────────────────────────────────────────────
+// ─── Route guards ─────────────────────────────────────────────────
 
-const PrivateRoute: React.FC<{ children: React.ReactNode; noLayout?: boolean }> = ({ children, noLayout }) => {
+const PrivateRoute: React.FC<{
+  children: React.ReactNode;
+  noLayout?: boolean;
+}> = ({ children, noLayout }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} replace />;
   return noLayout ? <>{children}</> : <AppLayout>{children}</AppLayout>;
 };
 
-const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AdminRoute: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
-
   if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} replace />;
-
-  // Non-admin users get redirected to dashboard
   if (user?.role !== "ADMIN") return <Navigate to={ROUTES.DASHBOARD} replace />;
-
   return <AppLayout>{children}</AppLayout>;
 };
 
-const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PublicOnlyRoute: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   return isAuthenticated ? <Navigate to={ROUTES.DASHBOARD} replace /> : <>{children}</>;
 };
 
-// ─── Routes ──────────────────────────────────────────────────────
+// ─── App Routes ───────────────────────────────────────────────────
 
 const AppRoutes: React.FC = () => {
   return (
@@ -63,7 +78,9 @@ const AppRoutes: React.FC = () => {
         </div>
       }>
       <Routes>
+        {/* ── Public ────────────────────────────────────────────── */}
         <Route path={ROUTES.LANDING} element={<LandingPage />} />
+
         <Route
           path={ROUTES.LOGIN}
           element={
@@ -96,6 +113,9 @@ const AppRoutes: React.FC = () => {
             </PublicOnlyRoute>
           }
         />
+        <Route path={ROUTES.PRICING} element={<PricingPage />} />
+
+        {/* ── Authenticated ──────────────────────────────────────── */}
         <Route
           path={ROUTES.DASHBOARD}
           element={
@@ -160,6 +180,28 @@ const AppRoutes: React.FC = () => {
             </PrivateRoute>
           }
         />
+
+        {/* ── Billing ───────────────────────────────────────────── */}
+        <Route
+          path={ROUTES.CHECKOUT}
+          element={
+            // noLayout — checkout has its own full-page design
+            <PrivateRoute noLayout>
+              <CheckoutPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.BILLING_SUCCESS}
+          element={
+            // noLayout — success page has its own full-page design + confetti
+            <PrivateRoute noLayout>
+              <BillingSuccessPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ── Admin ─────────────────────────────────────────────── */}
         <Route
           path={ROUTES.ADMIN_TEMPLATES}
           element={
@@ -169,7 +211,7 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
-          path='/admin/users'
+          path={ROUTES.ADMIN_USERS}
           element={
             <AdminRoute>
               <AdminUsersPage />
@@ -177,14 +219,27 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
-          path='/admin/coupons'
+          path={ROUTES.ADMIN_COUPONS}
           element={
             <AdminRoute>
               <AdminCouponsPage />
             </AdminRoute>
           }
         />
+        <Route
+          path={ROUTES.ADMIN_BILLING}
+          element={
+            <AdminRoute>
+              <AdminBillingPage />
+            </AdminRoute>
+          }
+        />
+
+        {/* ── Public portfolio view ─────────────────────────────── */}
         <Route path={ROUTES.PUBLIC_PORTFOLIO} element={<PublicPage />} />
+
+        {/* ── Fallback ──────────────────────────────────────────── */}
+        <Route path='*' element={<Navigate to={ROUTES.LANDING} replace />} />
       </Routes>
     </React.Suspense>
   );

@@ -11,11 +11,17 @@
 
 import AxiosService from "@cyopo/Services/rest/lib/RestInstance";
 import { AxiosRequestConfig } from "axios";
+import { deduplicateRequest } from "./RequestCache";
 
 const REST = {
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await AxiosService.get<T>(url, config);
-    return response.data;
+  // async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  //   const response = await AxiosService.get<T>(url, config);
+  //   return response.data;
+  // },
+
+  get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+    const key = url + JSON.stringify(config?.params ?? {});
+    return deduplicateRequest(key, () => AxiosService.get<T>(url, config).then((res) => res.data));
   },
 
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {

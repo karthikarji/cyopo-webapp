@@ -16,24 +16,10 @@ export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
 ];
 
 export const SIDEBAR_ADMIN_ITEMS: SidebarNavItem[] = [
-  {
-    label: "Templates",
-    icon: "style",
-    route: ROUTES.ADMIN_TEMPLATES,
-    adminOnly: true,
-  },
-  {
-    label: "Users",
-    icon: "group",
-    route: ROUTES.ADMIN_USERS,
-    adminOnly: true,
-  },
-  {
-    label: "Coupons",
-    icon: "local_offer",
-    route: ROUTES.ADMIN_COUPONS,
-    adminOnly: true,
-  },
+  { label: "Templates", icon: "style", route: ROUTES.ADMIN_TEMPLATES, adminOnly: true },
+  { label: "Users", icon: "group", route: ROUTES.ADMIN_USERS, adminOnly: true },
+  { label: "Coupons", icon: "local_offer", route: ROUTES.ADMIN_COUPONS, adminOnly: true },
+  { label: "Billing", icon: "payments", route: ROUTES.ADMIN_BILLING, adminOnly: true },
 ];
 
 export const SIDEBAR_WIDTH_COLLAPSED = 56;
