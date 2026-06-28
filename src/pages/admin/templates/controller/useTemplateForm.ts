@@ -4,6 +4,7 @@ import Notify from "@cyopo/Services/notification/Notify";
 import { TemplateStatus, TemplateData, CreateTemplateData } from "@cyopo/Models/admin/admin.models";
 
 interface FormValues {
+  slug: string;
   title: string;
   description: string;
   font: string;
@@ -16,6 +17,7 @@ interface FormValues {
 }
 
 interface FormErrors {
+  slug?: string;
   title?: string;
   description?: string;
   thumbnail?: string;
@@ -26,6 +28,7 @@ interface FormErrors {
 }
 
 const emptyForm = (): FormValues => ({
+  slug: "",
   title: "",
   description: "",
   font: "Inter",
@@ -38,6 +41,7 @@ const emptyForm = (): FormValues => ({
 });
 
 const templateToForm = (t: TemplateData): FormValues => ({
+  slug: t.slug,
   title: t.title,
   description: t.description,
   font: t.font,
@@ -146,6 +150,8 @@ const useTemplateForm = (template: TemplateData | null, onSuccess: (saved: Templ
   // ─── Validation ───────────────────────────────────────────────────
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
+    if (!values.slug.trim()) newErrors.slug = "Slug is required";
+    else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug.trim())) newErrors.slug = "Slug must be lowercase letters, numbers and hyphens only";
     if (!values.title.trim()) newErrors.title = "Title is required";
     if (!values.description.trim()) newErrors.description = "Description is required";
     if (!isEdit && !thumbnailFile) newErrors.thumbnail = "Thumbnail image is required";
@@ -159,6 +165,7 @@ const useTemplateForm = (template: TemplateData | null, onSuccess: (saved: Templ
 
   // ─── Form validity — required fields filled ───────────────────────
   const isFormValid =
+    values.slug.trim().length > 0 &&
     values.title.trim().length > 0 &&
     values.description.trim().length > 0 &&
     values.font.trim().length > 0 &&
@@ -175,6 +182,7 @@ const useTemplateForm = (template: TemplateData | null, onSuccess: (saved: Templ
     : (() => {
         if (!template) return false;
         return (
+          values.slug !== template.slug ||
           values.title !== template.title ||
           values.description !== template.description ||
           values.font !== template.font ||
@@ -195,6 +203,7 @@ const useTemplateForm = (template: TemplateData | null, onSuccess: (saved: Templ
     if (!validate()) return;
 
     const payload: CreateTemplateData = {
+      slug: values.slug.trim(),
       title: values.title.trim(),
       description: values.description.trim(),
       font: values.font.trim(),

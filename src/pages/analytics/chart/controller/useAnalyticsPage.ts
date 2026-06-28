@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import useAnalyticsData from "../common/hooks/useAnalyticsData";
-import useAnalyticsChart from "../chart/controller/useAnalyticsChart";
+import useAnalyticsData from "../../common/hooks/useAnalyticsData";
+import useAnalyticsChart from "../../chart/controller/useAnalyticsChart";
 
 const useAnalyticsPage = () => {
   const { data, isLoading, error, fetch } = useAnalyticsData();

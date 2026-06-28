@@ -28,7 +28,7 @@ export interface WizardProfileData {
 export interface WizardSkillsData {
   skills: Skill[];
   certifications: Certification[];
-  customCategories: string[];
+  customCategories?: string[];
 }
 
 export interface WizardExperienceData {

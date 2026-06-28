@@ -36,6 +36,7 @@ class AdminTemplateAPIService {
   async create(data: Omit<CreateTemplateData, "thumbnail">, thumbnailFile: File): Promise<TemplateData> {
     try {
       const formData = new FormData();
+      formData.append("slug", data.slug);
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("font", data.font);
@@ -46,9 +47,7 @@ class AdminTemplateAPIService {
       data.tags.forEach((tag) => formData.append("tags", tag));
       formData.append("thumbnail", thumbnailFile);
 
-      const response = await REST.post<ApiResponse<TemplateData>>(API.ADMIN.TEMPLATES, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await REST.post<ApiResponse<TemplateData>>(API.ADMIN.TEMPLATES, formData);
       return response.data;
     } catch (error: any) {
       throw new Error(extractApiError(error));

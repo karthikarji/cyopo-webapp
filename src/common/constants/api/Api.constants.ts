@@ -32,6 +32,7 @@ export const API = {
     CONTACT: (slug: string) => `/api/v1/public/portfolios/${slug}/contact`,
     VALIDATE_SLUG: "/api/v1/public/portfolios/validate-slug",
     RESUME_DOWNLOAD: (id: string) => `/api/v1/public/portfolios/${id}/resume`,
+    TEMPLATES: "/api/v1/public/templates",
   },
   TEMPLATE: {
     PUBLIC: "/api/v1/public/templates",

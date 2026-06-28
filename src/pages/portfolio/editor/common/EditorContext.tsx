@@ -247,14 +247,7 @@ export const EditorProvider: React.FC<Props> = ({ children }) => {
     } finally {
       dispatch(editorSetSaving(false));
     }
-  }, [
-    id,
-    formData,
-    resumeFile, // ← must be here so closure captures latest File object
-    resumeIsDirty, // ← must be here
-    resumeRemoved, // ← must be here
-    dispatch,
-  ]);
+  }, [id, formData, resumeFile, resumeIsDirty, resumeRemoved, dispatch]);
 
   // ─── Publish ──────────────────────────────────────────────────────
   const handlePublish = useCallback(async () => {

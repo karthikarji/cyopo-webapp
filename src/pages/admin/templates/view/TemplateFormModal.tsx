@@ -51,6 +51,24 @@ const TemplateFormModal: React.FC<Props> = ({ template, onSuccess, onClose }) =>
             {state.errors.title && <p className='text-xs text-error'>{state.errors.title}</p>}
           </div>
 
+          {/* Slug */}
+          <div className='flex flex-col gap-1.5'>
+            <label className='text-xs font-medium text-on-surface-variant'>
+              Slug <span className='text-error'>*</span>
+              <span className='ml-1 font-normal text-on-surface-variant/60'>(lowercase, hyphens only — e.g. minimal-light)</span>
+            </label>
+            <input
+              type='text'
+              value={state.values.slug}
+              onChange={(e) => handlers.handleChange("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+              placeholder='minimal-light'
+              disabled={state.isEdit}
+              className={[inputCls, state.errors.slug ? "border-error/60" : "", state.isEdit ? "opacity-50 cursor-not-allowed" : ""].join(" ")}
+            />
+            {state.errors.slug && <p className='text-xs text-error'>{state.errors.slug}</p>}
+            {state.isEdit && <p className='text-xs text-on-surface-variant/60'>Slug cannot be changed after creation</p>}
+          </div>
+
           {/* Description */}
           <div className='flex flex-col gap-1.5'>
             <label className='text-xs font-medium text-on-surface-variant'>
@@ -249,13 +267,7 @@ const TemplateFormModal: React.FC<Props> = ({ template, onSuccess, onClose }) =>
 
         {/* Footer */}
         <div className='flex items-center gap-3 px-6 py-4 border-t border-outline-variant/20 flex-shrink-0'>
-          <Button
-            variant='primary'
-            size='md'
-            loading={state.isSaving}
-            disabled={!state.canSubmit} // ← add disabled
-            onClick={handlers.handleSubmit}
-            className='flex-1'>
+          <Button variant='primary' size='md' loading={state.isSaving} disabled={!state.canSubmit} onClick={handlers.handleSubmit} className='flex-1'>
             {state.isEdit ? "Save Changes" : "Create Template"}
           </Button>
           <Button variant='secondary' size='md' onClick={onClose} className='flex-1'>
